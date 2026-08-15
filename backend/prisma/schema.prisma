@@ -7,18 +7,16 @@ datasource db {
   provider = "postgresql"
 }
 
-model User { 
-  id    Int     @id @default(autoincrement()) 
-  email String  @unique
-  name  String?
-  posts Post[]
-} 
+model speciality {
+  id          String   @id @default(uuid())
+  icon        String?
+  title       String   @db.Text
+  description String?  @db.VarChar(250)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-model Post { 
-  id        Int     @id @default(autoincrement()) 
-  title     String
-  content   String?
-  published Boolean @default(false) 
-  author    User    @relation(fields: [authorId], references: [id]) 
-  authorId  Int
-} 
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+}
+
+
