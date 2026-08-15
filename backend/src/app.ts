@@ -1,7 +1,9 @@
+import { speciality } from './genereted/prisma/browser';
 import cookieParser from "cookie-parser";
 import express, { Application, Request, Response } from "express";
 
 import cors from "cors";
+import { specialityRouter } from './modules/speciality/speciality.route';
 
 const app: Application = express();
 app.use(cookieParser());
@@ -9,12 +11,12 @@ app.use(express.json());
 
 
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")  
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
   .map((origin) => origin.trim())
-  .filter(Boolean);   
- 
- 
+  .filter(Boolean);
+
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -35,9 +37,9 @@ app.use(
 
 const API_PREFIX = "/api/v1";
 
+app.use(`${API_PREFIX}/speciality`, specialityRouter)
 
-
-app.get("/", (req:Request, res: express.Response) => {
+app.get("/", (req: Request, res: express.Response) => {
   res.send("Hello, World!");
 });
 
