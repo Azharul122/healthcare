@@ -6,4 +6,12 @@
 /backend.env
 /frontend.env
 
+/generated/prisma
+
+/backend/.env
+/backend/.agents
+/backend/.claude
+/backend/.windsurf
+/backend/dist
+
 # 

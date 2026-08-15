@@ -1,14 +1,12 @@
-import dotenv from "dotenv";
-
-
-
+import dotenv from "dotenv"
 // import { prisma } from "../lib/prisma";
 import app from "./app";
+import { prisma } from "../lib/peisma";
 dotenv.config();
 async function main() {
   
   try {
-    // await prisma.$connect();
+    await prisma.$connect();
     console.log("Connected to the database");
 
     app.listen(process.env.PORT, () => {
@@ -18,7 +16,7 @@ async function main() {
     });
   } catch (error) {
     console.error("Error connecting to the database:", error);
-    // await prisma.$disconnect();
+    await prisma.$disconnect();
     process.exit(1);
   }
 }
