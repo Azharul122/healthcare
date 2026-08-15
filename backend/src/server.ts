@@ -1,7 +1,7 @@
 import dotenv from "dotenv"
 // import { prisma } from "../lib/prisma";
 import app from "./app";
-import { prisma } from "../lib/peisma";
+import { prisma } from "../lib/prisma";
 dotenv.config();
 async function main() {
   

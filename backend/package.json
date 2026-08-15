@@ -13,7 +13,10 @@
     "lint": "eslint . --ext .ts",
     "build": "tsc",
     "generate": "prisma generate",
-    "migrate": "prisma migrate dev"
+    "migrate": "prisma migrate dev",
+    "studio": "prisma studio",
+    "push": "prisma db push",
+    "pull": "prisma db pull"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
