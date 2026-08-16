@@ -19,7 +19,11 @@ const createSpeciality = async ({ title, description }: { title: string, descrip
 
 // ...................... Get All Speciality ......................
 const getAllSpeciality = async () => {
-    const result = await prisma.speciality.findMany()
+    const result = await prisma.speciality.findMany({
+        where: {
+            isDeleted: false
+        }
+    })
     return result
 }
 
@@ -62,12 +66,25 @@ const deleteSpeciality = async (id: string) => {
     return result;
 };
 
+// ...................... Get Single Speciality By Id ......................
+
+const getSingleSpeciality = async (id: string) => {
+    if(id.length !== 36) throw new AppError(400, "Invalid id provided")
+    const result = await prisma.speciality.findUnique({
+        where: {
+            id
+        }
+    })
+    return result
+}
+
 // ...................... Export ......................
 export const specialityService = {
     createSpeciality,
     getAllSpeciality,
     updateSpeciality,
-    deleteSpeciality
+    deleteSpeciality,
+    getSingleSpeciality
 }
 
 

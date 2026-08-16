@@ -2,14 +2,14 @@ import { NextFunction, Request, Response } from "express"
 import { specialityService } from "./speciality.service"
 
 
-const createSpecialities = async (req: Request, res: Response) => {
+const createSpecialities = async (req: Request, res: Response, next: NextFunction) => {
     const { title, description } = req.body
 
     const data = {
         title,
         description
     }
-    console.log(data, "controler")
+
     try {
         const speciality = await specialityService.createSpeciality(data)
 
@@ -19,15 +19,12 @@ const createSpecialities = async (req: Request, res: Response) => {
             data: speciality
         })
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error creating speciality",
-            error: error
-        })
+        console.log(error)
+        next(error)
     }
 }
 
-const getAllSpeciality = async (req: Request, res: Response) => {
+const getAllSpeciality = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const speciality = await specialityService.getAllSpeciality()
         return res.status(200).json({
@@ -36,15 +33,12 @@ const getAllSpeciality = async (req: Request, res: Response) => {
             data: speciality
         })
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error fetching speciality",
-            error: error
-        })
+        console.log(error)
+        next(error)
     }
 }
 
-const updateSpeciality = async (req: Request, res: Response) => {
+const updateSpeciality = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params
     const { title, description } = req.body
     const data = {
@@ -59,11 +53,8 @@ const updateSpeciality = async (req: Request, res: Response) => {
             data: speciality
         })
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error updating speciality",
-            error: error
-        })
+        console.log(error)
+        next(error)
     }
 }
 
@@ -84,9 +75,37 @@ const deleteSpeciality = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
+// ...................... get single speciality ......................
+const getSingleSpeciality = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params
+
+    if (!id) {
+        return res.status(400).json({
+            success: false,
+            message: "Id is required",
+            data: null
+        })
+    }
+
+    try {
+        const speciality = await specialityService.getSingleSpeciality(id as string)
+        return res.status(200).json({
+            success: true,
+            message: "Speciality fetched successfully",
+            data: speciality
+        })
+    } catch (error) {
+        console.log(error)
+        next(error)
+    }
+}
+
+
+// ...................... Export ......................
 export const specialityController = {
     createSpecialities,
     updateSpeciality,
     getAllSpeciality,
-    deleteSpeciality
+    deleteSpeciality,
+    getSingleSpeciality
 }
