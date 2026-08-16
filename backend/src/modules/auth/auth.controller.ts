@@ -7,7 +7,7 @@ import { authService } from "./auth.service"
 const register = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body
 
-    const result = await authService.register({ name, email, password  })
+    const result = await authService.register({ name, email, password })
     sendResponse(res, {
         message: "User registered successfully",
         success: true,
@@ -16,6 +16,19 @@ const register = catchAsync(async (req: Request, res: Response, next: NextFuncti
     })
 })
 
+const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body
+
+    const result = await authService.login(email, password)
+    sendResponse(res, {
+        message: "User logged in successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 export const authController = {
-    register
+    register,
+    login
 }

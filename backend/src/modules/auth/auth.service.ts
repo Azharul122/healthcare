@@ -19,4 +19,14 @@ const register = async (user: RegisterPayload) => {
     return result
 }
 
-export const authService = { register }
+const login = async (email: string, password: string) => {
+    const result = await auth.api.signInEmail({
+        body: {
+            email,
+            password
+        }
+    })
+    return result
+}
+
+export const authService = { register, login }
