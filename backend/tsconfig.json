@@ -6,9 +6,9 @@
     "strict": true,
     "esModuleInterop": true,
     "ignoreDeprecations": "6.0",
-    // "rootDir": "src",
-    "outDir": "./dist"
+    "rootDir": "src",
+    "outDir": "dist",
   },
-  "include": ["src", "lib"],
+  "include": ["src", "src/lib"],
   "exclude": ["node_modules", "dist", "generated"]
 }
