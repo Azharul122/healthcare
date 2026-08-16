@@ -1,4 +1,4 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { specialityService } from "./speciality.service"
 
 
@@ -67,7 +67,7 @@ const updateSpeciality = async (req: Request, res: Response) => {
     }
 }
 
-const deleteSpeciality = async (req: Request, res: Response) => {
+const deleteSpeciality = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params
 
     try {
@@ -79,11 +79,8 @@ const deleteSpeciality = async (req: Request, res: Response) => {
             data: null
         })
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Error updating speciality",
-            error: error
-        })
+        console.log(error)
+        next(error)
     }
 }
 

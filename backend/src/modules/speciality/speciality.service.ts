@@ -1,4 +1,5 @@
 import { prisma } from "../../../lib/prisma"
+import { AppError } from "../../errors/AppError"
 
 
 // ...................... Create Speciality ......................
@@ -36,17 +37,30 @@ const updateSpeciality = async (id: string, data: { title?: string, description?
 
 // ...................... Delete Speciality(soft) ......................
 
+
 const deleteSpeciality = async (id: string) => {
+    const speciality = await prisma.speciality.findUnique({
+        where: { id }
+    });
+
+    if (!speciality) {
+        throw new AppError(404, "Speciality not found");
+    }
+
+    if (speciality.isDeleted) {
+        throw new AppError(400, "Speciality is already deleted");
+    }
+
     const result = await prisma.speciality.update({
-        where: {
-            id
-        },
+        where: { id },
         data: {
-            isDeleted: true
+            isDeleted: true,
+            deletedAt: new Date()
         }
-    })
-    return result
-}
+    });
+
+    return result;
+};
 
 // ...................... Export ......................
 export const specialityService = {
