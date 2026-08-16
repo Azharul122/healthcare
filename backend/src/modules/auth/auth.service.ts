@@ -1,6 +1,7 @@
 import { RegisterPayload } from '../../types/user';
 import { Role, User } from "../../genereted/prisma/client"
 import { auth } from '../../lib/auth';
+import { prisma } from '../../lib/prisma';
 
 
 const register = async (user: RegisterPayload) => {
@@ -14,18 +15,43 @@ const register = async (user: RegisterPayload) => {
         }
     })
 
-    if (!result) throw new Error("User not created")
+    if (!result.user) throw new Error("User not created")
 
-    return result
+    const patient = await prisma.$transaction(async (tx) => {
+        const patient = await tx.patient.create({
+            data: {
+                userId: result.user.id,
+                name: user.name,
+                email: user.email
+            }
+        })
+        return patient
+    })
+
+    return {
+        ...result,
+        patient
+    }
 }
 
 const login = async (email: string, password: string) => {
+
+    const isAlreadyDeletedUser = await prisma.user.findUnique({
+        where: {
+            email
+        }
+    })
+
+    if (isAlreadyDeletedUser?.isDeleted) throw new Error("User is already deleted")
+
     const result = await auth.api.signInEmail({
         body: {
             email,
             password
         }
     })
+
+
     return result
 }
 

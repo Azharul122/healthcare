@@ -1,7 +1,8 @@
 
 import cors from "cors";
+import envConfig from "./envConfig";
 
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+const allowedOrigins = (envConfig.ALLOWED_ORIGINS || "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
