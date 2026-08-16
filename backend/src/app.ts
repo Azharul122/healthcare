@@ -4,11 +4,11 @@ import express, { Application, Request, Response } from "express";
 
 import cors from "cors";
 import { specialityRouter } from './modules/speciality/speciality.route';
+import { indexRouter } from './routes';
 
 const app: Application = express();
 app.use(cookieParser());
 app.use(express.json());
-
 
 
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
@@ -37,7 +37,8 @@ app.use(
 
 const API_PREFIX = "/api/v1";
 
-app.use(`${API_PREFIX}/speciality`, specialityRouter)
+app.use(`${API_PREFIX}`, indexRouter);
+
 
 app.get("/", (req: Request, res: express.Response) => {
   res.send("Hello, World!");
