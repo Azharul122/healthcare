@@ -63,7 +63,9 @@ const login = async (email: string, password: string) => {
         }
     })
 
-    const accessToken = getAccessToken({
+    // console.log(result)
+
+    const accessToken = await getAccessToken({
         id: result.user.id,
         role: result.user.role,
         name: result.user.name,
@@ -72,7 +74,8 @@ const login = async (email: string, password: string) => {
         status: result.user.status,
         emailVerified: result.user.emailVerified
     })
-    const refreshToken = getRefreshToken({
+
+    const refreshToken = await getRefreshToken({
         id: result.user.id,
         role: result.user.role,
         name: result.user.name,
@@ -81,6 +84,10 @@ const login = async (email: string, password: string) => {
         status: result.user.status,
         emailVerified: result.user.emailVerified
     })
+
+    // console.log(accessToken, refreshToken)
+
+    
 
     return {
         ...result,

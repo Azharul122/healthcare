@@ -23,6 +23,8 @@ interface EnvConfig {
     REFRESH_TOKEN_SECRET: string
     ACCESS_TOKEN_EXPIRE_IN: string
     REFRESH_TOKEN_EXPIRE_IN: string
+    BETTER_AUTH_SESSION_EXPIRE_IN: string
+    BETTER_AUTH_SESSION_TOKEN_UPDATE_IN: string
 }
 
 const envConfig = process.env as unknown as EnvConfig

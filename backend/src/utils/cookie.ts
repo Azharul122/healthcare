@@ -1,14 +1,17 @@
+import { CookieOptions, Request, Response } from "express";
 
-const setCookie = (res: any, name: string, value: string, options: any) => {
-    res.cookie(name, value, options);
+const setCookie = (res: Response, key: string, value: string, options: CookieOptions) => {
+    res.cookie(key, value, options);
 }
 
-const deleteCookie = (res: any, name: string) => {
+const getCookie = (req: Request, key: string) => {
+    return req.cookies[key];
+}
+
+const clearCookie = (res: Response, name: string) => {
     res.clearCookie(name);
 }
 
-const clearCookie = (res: any) => {
-    res.clearCookie();
-}
 
-export { setCookie, deleteCookie, clearCookie }
+
+export { setCookie, clearCookie, getCookie }

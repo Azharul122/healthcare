@@ -17,8 +17,8 @@ app.get("/", (req: Request, res: express.Response) => {
   res.send("Hello, World!");
 });
 
-app.use(notFoundHandler);       
-app.use(globalErrorHandler);  
+// app.use(notFoundHandler);       
+// app.use(globalErrorHandler);  
 
 
 export default app;
