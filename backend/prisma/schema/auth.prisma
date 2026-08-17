@@ -5,7 +5,7 @@ model User {
     emailVerified      Boolean    @default(false)
     needPasswordChange Boolean    @default(false)
     role               Role       @default(PATIENT)
-    status         UserStatus @default(ACTIVE)
+    status             UserStatus @default(ACTIVE)
     isDeleted          Boolean    @default(false)
     image              String?
     createdAt          DateTime   @default(now())
@@ -13,12 +13,12 @@ model User {
     deletedAt          DateTime?
     sessions           Session[]
     accounts           Account[]
-    patient Patient?
+    patient            Patient?
+    doctor             Doctor?
+
     @@unique([email])
     @@map("user")
 }
-
-
 
 model Session {
     id        String   @id

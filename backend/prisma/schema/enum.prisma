@@ -12,4 +12,8 @@ enum Role {
     DOCTOR
 }
 
-
+enum Gender {
+    MALE
+    FEMALE
+    OTHERS
+}
