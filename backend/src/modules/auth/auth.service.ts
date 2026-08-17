@@ -53,6 +53,7 @@ const login = async (email: string, password: string) => {
     })
 
     if (isAlreadyDeletedUser?.isDeleted) throw new Error("User is already deleted")
+    if (isAlreadyDeletedUser?.status === "BLOCKED") throw new Error("User is blocked, please contact with the admin")
 
     const result = await auth.api.signInEmail({
         body: {
@@ -60,7 +61,6 @@ const login = async (email: string, password: string) => {
             password
         }
     })
-
 
     return result
 }
