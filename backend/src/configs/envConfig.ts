@@ -19,6 +19,10 @@ interface EnvConfig {
     BETTER_AUTH_SECRET: string
     BETTER_AUTH_URL: string
     ALLOWED_ORIGINS: string
+    ACCESS_TOKEN_SECRET: string
+    REFRESH_TOKEN_SECRET: string
+    ACCESS_TOKEN_EXPIRE_IN: string
+    REFRESH_TOKEN_EXPIRE_IN: string
 }
 
 const envConfig = process.env as unknown as EnvConfig

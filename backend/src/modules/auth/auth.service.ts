@@ -2,6 +2,7 @@ import { RegisterPayload } from '../../types/user';
 import { Role, User } from "../../genereted/prisma/client"
 import { auth } from '../../lib/auth';
 import { prisma } from '../../lib/prisma';
+import { getAccessToken, getRefreshToken } from '../../utils/token';
 
 
 const register = async (user: RegisterPayload) => {
@@ -62,7 +63,30 @@ const login = async (email: string, password: string) => {
         }
     })
 
-    return result
+    const accessToken = getAccessToken({
+        id: result.user.id,
+        role: result.user.role,
+        name: result.user.name,
+        isDeleted: result.user.isDeleted,
+        email: result.user.email,
+        status: result.user.status,
+        emailVerified: result.user.emailVerified
+    })
+    const refreshToken = getRefreshToken({
+        id: result.user.id,
+        role: result.user.role,
+        name: result.user.name,
+        isDeleted: result.user.isDeleted,
+        email: result.user.email,
+        status: result.user.status,
+        emailVerified: result.user.emailVerified
+    })
+
+    return {
+        ...result,
+        accessToken,
+        refreshToken
+    }
 }
 
 export const authService = { register, login }

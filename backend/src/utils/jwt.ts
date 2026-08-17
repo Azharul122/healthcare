@@ -27,3 +27,5 @@ const verifyToken = async (token: string, secret: string) => {
 const decodeToken = async (token: string) => {
     return jwt.decode(token) as JwtPayload
 }
+
+export { createToken, verifyToken, decodeToken }
