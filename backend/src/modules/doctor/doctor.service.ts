@@ -17,6 +17,50 @@ const getAllDoctors = async () => {
     return result
 }
 
+const getSingleDoctor = async (id: string) => {
+    const result = await prisma.doctor.findUnique({
+        where: {
+            id
+        },
+        include: {
+            user: true,
+            doctorSpecialities: {
+                include: {
+                    speciality: true
+                }
+            }
+        }
+    })
+    return result
+}
+
+const updateDoctor = async (id: string, payload: any) => {
+    const result = await prisma.doctor.update({
+        where: {
+            id
+        },
+        data: payload
+    })
+    return result
+}
+
+//  soft delete
+const deleteDoctor = async (id: string) => {
+    const result = await prisma.doctor.update({
+        where: {
+            id
+        },
+        data: {
+            isDeleted: true,
+            deletedAt: new Date()
+        }
+    })
+    return result
+}
+
 export const doctorService = {
-    getAllDoctors
+    getAllDoctors,
+    getSingleDoctor,
+    updateDoctor,
+    deleteDoctor
 }
