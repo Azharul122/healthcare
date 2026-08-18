@@ -28,3 +28,21 @@ export interface CreateDoctorPayload {
     }
     specialities?: string[]
 }
+
+export interface updateDoctorPayload {
+    doctor: {
+        name?: string,
+        email?: string,
+        profilePic?: string
+        gender?: Gender
+        phone?: string
+        registartionNumber?: string
+        appointFe?: number
+        qualification?: string
+        currentWorkingPlace?: string
+        designation?: string
+        avarageRating?: number
+        expreince?: number
+    }
+    specialities?: string[]
+}
