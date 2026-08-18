@@ -104,3 +104,9 @@ export const timeSchema = z
 
 
 
+// ---------- OTP ----------
+export const otpSchema = (digits = 6) =>
+    z
+        .string()
+        .length(digits, `OTP must be exactly ${digits} digits`)
+        .regex(/^\d+$/, "OTP must contain only numbers");

@@ -57,8 +57,13 @@ export interface IUpdateAdminPayload {
 }
 
 
-export interface IRequestUser{
-    userId : string;
-    role : Role;
-    email : string;
+export interface IRequestUser {
+    userId: string;
+    role: Role;
+    email: string;
+}
+
+export interface IChangePassword {
+    oldPassword: string;
+    newPassword: string
 }

@@ -1,8 +1,11 @@
+import status from "http-status"
 import { speciality } from "../../genereted/prisma/client"
 
 import { auth } from "../../lib/auth"
 import { prisma } from "../../lib/prisma"
-import { CreateDoctorPayload } from "../../types/user"
+import { CreateDoctorPayload, IChangePassword } from "../../types/user"
+import { AppError } from "../../errors/AppError"
+import { getAccessToken, getRefreshToken } from "../../utils/token"
 
 
 
@@ -144,6 +147,75 @@ const createDoctor = async (payload: CreateDoctorPayload) => {
     }
 }
 
+// change password
+
+const changePassword = async (payload: IChangePassword, sessionToken: string) => {
+    const session = await auth.api.getSession({
+        headers: new Headers({
+            Authorization: `Bearer ${sessionToken}`
+        })
+    })
+
+    if (!session) {
+        throw new AppError(status.UNAUTHORIZED, "Invalid session token");
+    }
+
+    const { oldPassword, newPassword } = payload;
+
+    const result = await auth.api.changePassword({
+        body: {
+            currentPassword: oldPassword,
+            newPassword,
+            revokeOtherSessions: true,
+        },
+        headers: new Headers({
+            Authorization: `Bearer ${sessionToken}`
+        })
+    })
+
+    if (session.user.needPasswordChange) {
+        await prisma.user.update({
+            where: {
+                id: session.user.id,
+            },
+            data: {
+                needPasswordChange: false,
+            }
+        })
+    }
+
+    const accessToken = await getAccessToken({
+        userId: session.user.id,
+        role: session.user.role,
+        name: session.user.name,
+        email: session.user.email,
+        status: session.user.status,
+        isDeleted: session.user.isDeleted,
+        emailVerified: session.user.emailVerified,
+    });
+
+    const refreshToken = await getRefreshToken({
+        userId: session.user.id,
+        role: session.user.role,
+        name: session.user.name,
+        email: session.user.email,
+        status: session.user.status,
+        isDeleted: session.user.isDeleted,
+        emailVerified: session.user.emailVerified,
+    });
+
+
+    return {
+        ...result,
+        accessToken,
+        refreshToken,
+    }
+
+
+
+}
+
 export const userService = {
-    createDoctor
+    createDoctor,
+    changePassword
 }
