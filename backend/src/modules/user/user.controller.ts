@@ -24,7 +24,7 @@ const createDoctor = catchAsync(async (req: Request, res: Response, next: NextFu
 
 const chnagePassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
-        const betterAuthSessionToken = req.cookies["better-auth.session_token"];
+        const betterAuthSessionToken = req.cookies["betterAuth.session_token"];
 
         const result = await userService.changePassword(payload, betterAuthSessionToken);
 
@@ -42,7 +42,18 @@ const chnagePassword = catchAsync(async (req: Request, res: Response, next: Next
         });
 })
 
+const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const result = await userService.logout(req.cookies["betterAuth.session_token"])
+    sendResponse(res, {
+        message: "User logged out successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 export const userController = {
     createDoctor,
-    chnagePassword
+    chnagePassword,
+    logout
 }

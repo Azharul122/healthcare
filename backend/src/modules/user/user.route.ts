@@ -17,6 +17,8 @@ router.put(
     "/change-password", validateRequest(changePasswordZodSchema), checkAuth(Role.PATIENT, Role.DOCTOR, Role.ADMIN, Role.SUPER_ADMIN),
     userController.chnagePassword)
 
+router.post("/logout", checkAuth(Role.PATIENT, Role.DOCTOR, Role.ADMIN, Role.SUPER_ADMIN), userController.logout)
+
 
 
 export const userRouter = router
