@@ -2,18 +2,6 @@
 import { NextFunction, Request, Response } from "express";
 import status from "http-status";
 
-// declare global {
-//     namespace Express {
-//         interface Request {
-//             user?: {
-//                 userId: string;
-//                 role: Role;
-//                 email: string;
-//             };
-//         }
-//     }
-// }
-
 
 import { prisma } from "../lib/prisma";
 import { Role, UserStatus } from "../genereted/prisma/enums";
@@ -23,7 +11,7 @@ import { verifyToken } from "../utils/jwt";
 import envConfig from "../configs/envConfig";
 
 
-export const checkAuth = (...authRoles: Role[]) => async (req: Request, res: Response, next: NextFunction) => {
+export const checkAuth = (...authRoles: Role[] ) => async (req: Request, res: Response, next: NextFunction) => {
     try {
         //Session Token Verification
         const sessionToken = getCookie(req, "betterAuth.session_token");
@@ -31,6 +19,8 @@ export const checkAuth = (...authRoles: Role[]) => async (req: Request, res: Res
         if (!sessionToken) {
             throw new Error('Unauthorized access! No session token provided.');
         }
+
+     
 
         if (sessionToken) {
             const sessionExists = await prisma.session.findFirst({

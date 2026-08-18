@@ -43,7 +43,21 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
     })
 })
 
+const getMe = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    
+    const { userId } = req.user as any
+    console.log(req, "req.user")
+    const result = await authService.getMe(userId)
+    sendResponse(res, {
+        message: "User fetched successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 export const authController = {
     register,
-    login
+    login,
+    getMe
 }

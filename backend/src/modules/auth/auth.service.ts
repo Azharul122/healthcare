@@ -96,4 +96,13 @@ const login = async (email: string, password: string) => {
     }
 }
 
-export const authService = { register, login }
+const getMe=async(id:string)=>{
+    const result=await prisma.user.findUnique({
+        where:{
+            id:id
+        }
+    })
+    return result
+}
+
+export const authService = { register, login, getMe }
