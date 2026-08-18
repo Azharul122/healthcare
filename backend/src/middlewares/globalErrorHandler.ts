@@ -1,26 +1,86 @@
-import { ErrorRequestHandler } from 'express';
-import { AppError } from '../errors/AppError';
-import status from 'http-status';
 
-const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
-    if (error instanceof AppError) {
-        return res.status(error.statusCode).json({
-            success: false,
-            message: error.message,
-            errorMessage: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-        });
+
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import e, { NextFunction, Request, Response } from "express";
+import status from "http-status";
+import z from "zod";
+import envConfig from "../configs/envConfig";
+import { AppError } from "../errors/AppError";
+import { TErrorResponse, TErrorSources } from "../types/error";
+import { handleZodError } from "../errors/handleZodError";
+
+
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+    if (envConfig.NODE_ENV === 'development') {
+        console.log("Error from Global Error Handler", err);
     }
 
-    const statusCode = status.INTERNAL_SERVER_ERROR;
+    let errorSources: TErrorSources[] = []
+    let statusCode: number = status.INTERNAL_SERVER_ERROR;
+    let message: string = 'Internal Server Error';
+    let stack: string | undefined = undefined;
 
-    return res.status(statusCode).json({
+    //Zod Error Patttern
+    /*
+     error.issues; 
+    /* [
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: [ 'username' , 'password' ], => username password
+        message: 'Invalid input: expected string'
+      },
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: [ 'xp' ],
+        message: 'Invalid input: expected number'
+      }
+    ] 
+    */
+
+    if (err instanceof z.ZodError) {
+        const simplifiedError = handleZodError(err);
+        statusCode = simplifiedError.statusCode as number
+        message = simplifiedError.message
+        errorSources = [...simplifiedError.errorSources]
+        stack = err.stack;
+
+    } else if (err instanceof AppError) {
+        statusCode = err.statusCode;
+        message = err.message;
+        stack = err.stack;
+        errorSources = [
+            {
+                path: '',
+                message: err.message
+            }
+        ]
+    }
+    else if (err instanceof Error) {
+        statusCode = status.INTERNAL_SERVER_ERROR;
+        message = err.message
+        stack = err.stack;
+        errorSources = [
+            {
+                path: '',
+                message: err.message
+            }
+        ]
+    }
+
+
+    const errorResponse: TErrorResponse = {
         success: false,
-        message: error?.message || "Something went wrong",
-        // errorMessage: error?.message,
-        statusCode,
-        stack: process.env.NODE_ENV === 'development' ? error?.stack : undefined,
-    });
-};
+        message: message,
+        errorSources,
+        error: envConfig.NODE_ENV === 'development' ? err : undefined,
+        stack: envConfig.NODE_ENV === 'development' ? stack : undefined,
+    }
 
-export default globalErrorHandler;
+    res.status(statusCode).json(errorResponse);
+}
