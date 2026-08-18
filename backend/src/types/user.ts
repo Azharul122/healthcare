@@ -1,4 +1,4 @@
-import { Gender } from "../genereted/prisma/enums"
+import { Gender, Role } from "../genereted/prisma/enums"
 
 export interface RegisterPayload {
     name: string,
@@ -45,4 +45,20 @@ export interface updateDoctorPayload {
         expreince?: number
     }
     specialities?: string[]
+}
+
+
+export interface IUpdateAdminPayload {
+    admin?: {
+        name?: string;
+        profilePhoto?: string;
+        contactNumber?: string;
+    }
+}
+
+
+export interface IRequestUser{
+    userId : string;
+    role : Role;
+    email : string;
 }
