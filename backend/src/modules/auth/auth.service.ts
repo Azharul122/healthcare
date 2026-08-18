@@ -3,6 +3,11 @@ import { Role, User } from "../../genereted/prisma/client"
 import { auth } from '../../lib/auth';
 import { prisma } from '../../lib/prisma';
 import { getAccessToken, getRefreshToken } from '../../utils/token';
+import { verifyToken } from '../../utils/jwt';
+import envConfig from '../../configs/envConfig';
+import { AppError } from '../../errors/AppError';
+import status from 'http-status';
+import { JwtPayload } from 'jsonwebtoken';
 
 
 const register = async (user: RegisterPayload) => {
@@ -87,7 +92,7 @@ const login = async (email: string, password: string) => {
 
     // console.log(accessToken, refreshToken)
 
-    
+
 
     return {
         ...result,
@@ -96,13 +101,80 @@ const login = async (email: string, password: string) => {
     }
 }
 
-const getMe=async(id:string)=>{
-    const result=await prisma.user.findUnique({
-        where:{
-            id:id
+const getMe = async (id: string) => {
+    const result = await prisma.user.findUnique({
+        where: {
+            id: id
         }
     })
     return result
 }
 
-export const authService = { register, login, getMe }
+// get new access token
+
+const getNewAccessToken = async (refreshToken: string, sessionToken: string) => {
+
+    const isSessionTokenExists = await prisma.session.findUnique({
+        where: {
+            token: sessionToken,
+        },
+        include: {
+            user: true,
+        }
+    })
+
+    if (!isSessionTokenExists) {
+        throw new AppError(status.UNAUTHORIZED, "Invalid session token");
+    }
+
+    const verifiedRefreshToken = await verifyToken(refreshToken, envConfig.REFRESH_TOKEN_SECRET)
+
+
+    if (!verifiedRefreshToken.success && verifiedRefreshToken.error) {
+        throw new AppError(status.UNAUTHORIZED, "Invalid refresh token");
+    }
+
+    const data = verifiedRefreshToken.data as JwtPayload;
+
+    const newAccessToken = await getAccessToken({
+        userId: data.userId,
+        role: data.role,
+        name: data.name,
+        email: data.email,
+        status: data.status,
+        isDeleted: data.isDeleted,
+        emailVerified: data.emailVerified,
+    });
+
+    const newRefreshToken =await getRefreshToken({
+        userId: data.userId,
+        role: data.role,
+        name: data.name,
+        email: data.email,
+        status: data.status,
+        isDeleted: data.isDeleted,
+        emailVerified: data.emailVerified,
+    });
+
+    const { token } = await prisma.session.update({
+        where: {
+            token: sessionToken
+        },
+        data: {
+            token: sessionToken,
+            expiresAt: new Date(Date.now() + 60 * 60 * 60 * 24 * 1000),
+            updatedAt: new Date(),
+        }
+    }
+    )
+
+    
+
+    return {
+        token,
+        newAccessToken,
+        newRefreshToken
+    }
+}
+
+export const authService = { register, login, getMe, getNewAccessToken }
