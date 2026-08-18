@@ -10,8 +10,13 @@ model Patient {
     isDeleted    Boolean   @default(false)
     deletedAt    DateTime?
 
-    userId String @unique
-    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    userId            String             @unique
+    user              User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    appoinments       Appointment[]
+    medical_reports   MedicalReport[]
+    patientHealthData PatientHealthData?
+    prescriptions     Prescription[]
+    reviews           Review[]
 
     @@index([isDeleted])
     @@index([userId])

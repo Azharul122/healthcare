@@ -4,15 +4,15 @@ model Doctor {
     email               String             @unique
     profilePic          String?
     phone               String?
-    registartionNumber  String?             @unique
+    registartionNumber  String?            @unique
     gender              Gender?
     appointFe           Float?
     qualification       String?
     currentWorkingPlace String?
     designation         String?
-    avarageRating       Float?              @default(0)
-    expreince           Int?                @default(0)
-    isDeleted           Boolean?            @default(false)
+    avarageRating       Float?             @default(0)
+    expreince           Int?               @default(0)
+    isDeleted           Boolean?           @default(false)
     deletedAt           DateTime?
     createdAt           DateTime           @default(now())
     updatedAt           DateTime           @updatedAt
@@ -20,6 +20,11 @@ model Doctor {
 
     userId String @unique
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    appointments    Appointment[]
+    prescriptions   Prescription[]
+    reviews         Review[]
+    doctorSchedules DoctorSchedules[]
 
     @@index([isDeleted], name: "idx_doctor_is_delated")
     @@index([email], name: "idx_doctor_mail")
