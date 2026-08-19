@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RegisterPayload } from '../../types/user';
 import { Role } from "../../genereted/prisma/client"
 import { auth } from '../../lib/auth';
@@ -67,6 +68,19 @@ const login = async (email: string, password: string) => {
             password
         }
     })
+
+    // if password need to change true then make it false
+
+    if (result.user.needPasswordChange) {
+        await prisma.user.update({
+            where: {
+                id: result.user.id
+            },
+            data: {
+                needPasswordChange: false
+            }
+        })
+    }
 
     // console.log(result)
 
@@ -254,6 +268,18 @@ const resetPassword = async (email: string, otp: string, password: string) => {
         }
     })
 
+    // 
+    if (isUserExists?.needPasswordChange) {
+        await prisma.user.update({
+            where: {
+                id: isUserExists.id
+            },
+            data: {
+                needPasswordChange: false
+            }
+        })
+    }
+
     //delete all session if changed pass
 
     await prisma.session.deleteMany({
@@ -265,5 +291,43 @@ const resetPassword = async (email: string, otp: string, password: string) => {
     return result
 }
 
+// google login
 
-export const authService = { register, login, getMe, getNewAccessToken, verifyEmailOtp, forgotPassword, resetPassword }
+const googleLoginSuccess = async (session : Record<string, any>) =>{
+    const isPatientExists = await prisma.patient.findUnique({
+        where : {
+            userId : session.user.id,
+        }
+    })
+
+    if(!isPatientExists){
+        await prisma.patient.create({
+            data : {
+                userId : session.user.id,
+                name : session.user.name,
+                email : session.user.email,
+            }
+        
+        })
+    }
+
+    const accessToken =  await getAccessToken({
+        userId: session.user.id,
+        role: session.user.role,
+        name: session.user.name,
+    });
+
+    const refreshToken = await getRefreshToken({
+        userId: session.user.id,
+        role: session.user.role,
+        name: session.user.name,
+    });
+
+    return {
+        accessToken,
+        refreshToken,
+    }
+}
+
+
+export const authService = { register, login, getMe, getNewAccessToken, verifyEmailOtp, forgotPassword, resetPassword, googleLoginSuccess }

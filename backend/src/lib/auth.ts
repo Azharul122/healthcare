@@ -9,19 +9,42 @@ import { sendEmail } from "../utils/email";
 
 
 export const auth = betterAuth({
+    baseURL: envConfig.BETTER_AUTH_URL,
+    secret: envConfig.BETTER_AUTH_SECRET,
+
     database: prismaAdapter(prisma, {
         provider: "postgresql"
     }),
 
     emailAndPassword: {
         enabled: true,
-        requireEmailVerification:true
+        requireEmailVerification: true
+    },
+
+
+
+    socialProviders: {
+        google: {
+            clientId: envConfig.GOOGLE_CLIENT_ID,
+            clientSecret: envConfig.GOOGLE_CLIENT_SECRET,
+            callbackUrl: envConfig.GOOGLE_CALLBACK_URL,
+            mapProfileToUser: () => {
+                return {
+                    role: Role.PATIENT,
+                    status: UserStatus.ACTIVE,
+                    needPasswordChange: false,
+                    emailVerified: true,
+                    isDeleted: false,
+                    deletedAt: null,
+                }
+            }
+        }
     },
 
     emailVerification: {
-       sendOnSignIn:true,
-       sendOnSignUp:true,
-       autoSignInAfterVerification: true
+        sendOnSignIn: true,
+        sendOnSignUp: true,
+        autoSignInAfterVerification: true
     },
 
     user: {
@@ -63,53 +86,76 @@ export const auth = betterAuth({
     },
     plugins: [
         bearer(),
-      emailOTP({
+        emailOTP({
             overrideDefaultEmailVerification: true,
-            async sendVerificationOTP({email, otp, type}) {
-                if(type === "email-verification"){
-                  const user = await prisma.user.findUnique({
-                    where : {
-                        email,
-                    }
-                  })
-                  
-                  if(user && !user.emailVerified){
-                    sendEmail({
-                        to : email,
-                        subject : "Verify your email",
-                        templateName : "otp",
-                        templateData :{
-                            name : user.name,
-                            otp,
-                        }
-                    })
-                  }
-                }else if(type === "forget-password"){
+            async sendVerificationOTP({ email, otp, type }) {
+                if (type === "email-verification") {
                     const user = await prisma.user.findUnique({
-                        where : {
+                        where: {
                             email,
                         }
                     })
 
-                    if(user){
+                    if (user && !user.emailVerified) {
                         sendEmail({
-                            to : email,
-                            subject : "Password Reset OTP",
-                            templateName : "otp",
-                            templateData :{
-                                name : user.name,
+                            to: email,
+                            subject: "Verify your email",
+                            templateName: "otp",
+                            templateData: {
+                                name: user.name,
+                                otp,
+                            }
+                        })
+                    }
+                } else if (type === "forget-password") {
+                    const user = await prisma.user.findUnique({
+                        where: {
+                            email,
+                        }
+                    })
+
+                    if (user) {
+                        sendEmail({
+                            to: email,
+                            subject: "Password Reset OTP",
+                            templateName: "otp",
+                            templateData: {
+                                name: user.name,
                                 otp,
                             }
                         })
                     }
                 }
             },
-            expiresIn : 10 * 60 , 
-            otpLength : 6,
+            expiresIn: 10 * 60,
+            otpLength: 6,
         })
     ],
-    // trustedOrigins: [process.env.NODE_ENV || "http://localhost:5000"],
-    // advanced : {
-    //     disableCSRFCheck: true
-    // }
+        redirectURLs:{
+        signIn : `${envConfig.BETTER_AUTH_URL}/api/v1/auth/google/success`,
+    },
+
+    trustedOrigins: [process.env.NODE_ENV || "http://localhost:5000"],
+    advanced: {
+        // disableCSRFCheck: true,
+        useSecureCookies: false,
+        cookies: {
+            state: {
+                attributes: {
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: true,
+                    path: "/",
+                }
+            },
+            sessionToken: {
+                attributes: {
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: true,
+                    path: "/",
+                }
+            }
+        }
+    }
 });

@@ -32,6 +32,12 @@ interface EnvConfig {
     EMAIL_SENDER_SMTP_PORT: string
     EMAIL_SENDER_SMTP_FROM: string
 
+    GOOGLE_CLIENT_ID: string
+    GOOGLE_CLIENT_SECRET: string
+    GOOGLE_CALLBACK_URL: URL
+
+    FRONTEND_URL: URL
+
 }
 
 const envConfig = process.env as unknown as EnvConfig
