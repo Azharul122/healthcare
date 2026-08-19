@@ -38,7 +38,7 @@ export const auth = betterAuth({
                     deletedAt: null,
                 }
             }
-        }
+        },
     },
 
     emailVerification: {

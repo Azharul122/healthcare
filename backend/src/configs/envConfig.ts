@@ -38,6 +38,9 @@ interface EnvConfig {
 
     FRONTEND_URL: URL
 
+    CLOUDINARY_CLOUD_NAME: string
+    CLOUDINARY_API_KEY: string
+    CLOUDINARY_API_SECRET: string
 }
 
 const envConfig = process.env as unknown as EnvConfig

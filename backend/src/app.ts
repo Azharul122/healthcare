@@ -7,14 +7,17 @@ import { globalErrorHandler } from "./middlewares/globalErrorHandler";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import path from "path";
+import { corsOptions } from "./configs/cors";
 
 
 const app: Application = express();
 app.use(cookieParser());
 app.use(express.json());
 
+app.use(corsOptions);
+
 app.set("view engine", "ejs");
-app.set("views",path.resolve(process.cwd(), `src/templetes`) )
+app.set("views", path.resolve(process.cwd(), `src/templetes`))
 
 app.use("/api/auth", toNodeHandler(auth))
 

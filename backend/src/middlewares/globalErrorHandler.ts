@@ -21,7 +21,7 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
 
     let errorSources: TErrorSources[] = []
     let statusCode: number = status.INTERNAL_SERVER_ERROR;
-    let message: string = 'Internal Server Error';
+    let message = 'Internal Server Error';
     let stack: string | undefined = undefined;
 
 
