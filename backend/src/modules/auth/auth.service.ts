@@ -1,5 +1,5 @@
 import { RegisterPayload } from '../../types/user';
-import { Role, User } from "../../genereted/prisma/client"
+import { Role } from "../../genereted/prisma/client"
 import { auth } from '../../lib/auth';
 import { prisma } from '../../lib/prisma';
 import { getAccessToken, getRefreshToken } from '../../utils/token';
@@ -146,7 +146,7 @@ const getNewAccessToken = async (refreshToken: string, sessionToken: string) => 
         emailVerified: data.emailVerified,
     });
 
-    const newRefreshToken =await getRefreshToken({
+    const newRefreshToken = await getRefreshToken({
         userId: data.userId,
         role: data.role,
         name: data.name,
@@ -168,7 +168,7 @@ const getNewAccessToken = async (refreshToken: string, sessionToken: string) => 
     }
     )
 
-    
+
 
     return {
         token,
@@ -177,4 +177,27 @@ const getNewAccessToken = async (refreshToken: string, sessionToken: string) => 
     }
 }
 
-export const authService = { register, login, getMe, getNewAccessToken }
+// verify email otp
+
+const verifyEmailOtp = async (email: string, otp: string) => {
+    const result = await auth.api.verifyEmailOTP({
+        body: {
+            email,
+            otp
+        }
+    })
+
+    if (result.status && !result.user.emailVerified) await prisma.user.update({
+        where: {
+            email
+        },
+        data: {
+            emailVerified: true
+        }
+    })
+    return result
+}
+
+
+
+export const authService = { register, login, getMe, getNewAccessToken, verifyEmailOtp }

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express"
 import catchAsync from "../../utils/catchAsync"
 import sendResponse from "../../utils/sendResponse"
@@ -92,9 +94,21 @@ const getNewAccessToken = catchAsync(
     }
 )
 
+const verifyEmailOtp = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { email, otp } = req.body
+    const result = await authService.verifyEmailOtp(email, otp)
+    sendResponse(res, {
+        message: "Email verified successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 export const authController = {
     register,
     login,
     getMe,
-    getNewAccessToken
+    getNewAccessToken,
+    verifyEmailOtp
 }

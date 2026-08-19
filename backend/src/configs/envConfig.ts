@@ -25,6 +25,13 @@ interface EnvConfig {
     REFRESH_TOKEN_EXPIRE_IN: string
     BETTER_AUTH_SESSION_EXPIRE_IN: string
     BETTER_AUTH_SESSION_TOKEN_UPDATE_IN: string
+
+    EMAIL_SENDER_SMTP_USER: string
+    EMAIL_SENDER_SMTP_PASS: string
+    EMAIL_SENDER_SMTP_HOST: string
+    EMAIL_SENDER_SMTP_PORT: string
+    EMAIL_SENDER_SMTP_FROM: string
+
 }
 
 const envConfig = process.env as unknown as EnvConfig
