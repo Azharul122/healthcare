@@ -3,11 +3,12 @@ import { AppError } from "../../errors/AppError"
 
 
 // ...................... Create Speciality ......................
-const createSpeciality = async ({ title, description }: { title: string, description?: string }) => {
+const createSpeciality = async ({ title, description, icon }: { title: string, description?: string, icon: string }) => {
     const result = await prisma.speciality.create({
         data: {
             title,
-            description
+            description,
+            icon
         }
     })
 
@@ -69,7 +70,7 @@ const deleteSpeciality = async (id: string) => {
 // ...................... Get Single Speciality By Id ......................
 
 const getSingleSpeciality = async (id: string) => {
-    if(id.length !== 36) throw new AppError(400, "Invalid id provided")
+    if (id.length !== 36) throw new AppError(400, "Invalid id provided")
     const result = await prisma.speciality.findUnique({
         where: {
             id

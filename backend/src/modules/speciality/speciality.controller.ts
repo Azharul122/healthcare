@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express"
 import { specialityService } from "./speciality.service"
 import catchAsync from "../../utils/catchAsync"
@@ -8,9 +9,14 @@ import { send } from "node:process"
 const createSpecialities = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { title, description } = req.body
 
+
+
+    const icon = req?.file?.path
+
     const data = {
         title,
-        description
+        description,
+        icon: icon as string
     }
     const speciality = await specialityService.createSpeciality(data)
 

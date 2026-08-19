@@ -11,11 +11,12 @@ import { corsOptions } from "./configs/cors";
 
 
 const app: Application = express();
+
 app.use(cookieParser());
 app.use(express.json());
 
 app.use(corsOptions);
-
+app.use(express.urlencoded({ extended: true }))
 app.set("view engine", "ejs");
 app.set("views", path.resolve(process.cwd(), `src/templetes`))
 

@@ -1,4 +1,7 @@
-import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
+import cloudinaryPackage from "cloudinary";
+import type { UploadApiResponse } from "cloudinary";
+
+const cloudinary = cloudinaryPackage.v2;
 import status from "http-status";
 import envConfig from "./envConfig";
 import { AppError } from "../errors/AppError";
