@@ -198,6 +198,72 @@ const verifyEmailOtp = async (email: string, otp: string) => {
     return result
 }
 
+// forgot password
+const forgotPassword = async (email: string) => {
+    const isUserExists = await prisma.user.findUnique({
+        where: {
+            email
+        }
+    })
+
+    if (!isUserExists) {
+        throw new AppError(status.NOT_FOUND, "User not found")
+    }
+
+    if (!isUserExists.emailVerified) {
+        throw new AppError(status.FORBIDDEN, "Email not verified")
+    }
+
+    if (isUserExists.isDeleted || isUserExists.status === "BLOCKED") {
+        throw new AppError(status.INTERNAL_SERVER_ERROR, "You can't chnage password please contact with admin")
+    }
+    const result = await auth.api.requestPasswordResetEmailOTP({
+        body: {
+            email
+        }
+    })
+    return result
+}
+
+// reset password
+
+const resetPassword = async (email: string, otp: string, password: string) => {
+    const isUserExists = await prisma.user.findUnique({
+        where: {
+            email
+        }
+    })
+
+    if (!isUserExists) {
+        throw new AppError(status.NOT_FOUND, "User not found")
+    }
+
+    if (!isUserExists.emailVerified) {
+        throw new AppError(status.FORBIDDEN, "Email not verified")
+    }
+
+    if (isUserExists.isDeleted || isUserExists.status === "BLOCKED") {
+        throw new AppError(status.INTERNAL_SERVER_ERROR, "You can't chnage password please contact with admin")
+    }
+
+    const result = await auth.api.resetPasswordEmailOTP({
+        body: {
+            email,
+            otp,
+            password
+        }
+    })
+
+    //delete all session if changed pass
+
+    await prisma.session.deleteMany({
+        where: {
+            userId: isUserExists.id
+        }
+    })
+
+    return result
+}
 
 
-export const authService = { register, login, getMe, getNewAccessToken, verifyEmailOtp }
+export const authService = { register, login, getMe, getNewAccessToken, verifyEmailOtp, forgotPassword, resetPassword }

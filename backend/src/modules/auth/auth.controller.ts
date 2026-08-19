@@ -105,10 +105,43 @@ const verifyEmailOtp = catchAsync(async (req: Request, res: Response, next: Next
     })
 })
 
+// forgot password
+
+const forgotPassword = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { email } = req.body
+
+        const result = await authService.forgotPassword(email)
+
+        sendResponse(res, {
+            message: "Otp send your mail please check and veirfy",
+            success: true,
+            statusCode: status.OK,
+            data: result
+        })
+    }
+)
+
+const resetPassword = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { email, otp, password } = req.body
+        const result = await authService.resetPassword(email, otp, password)
+
+           sendResponse(res, {
+            message: "Password reseted successfully",
+            success: true,
+            statusCode: status.OK,
+            data: result
+        })
+    }
+)
+
 export const authController = {
     register,
     login,
     getMe,
     getNewAccessToken,
-    verifyEmailOtp
+    verifyEmailOtp,
+    forgotPassword,
+    resetPassword
 }

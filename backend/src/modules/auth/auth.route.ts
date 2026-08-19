@@ -11,6 +11,7 @@ router.post("/login", authController.login)
 router.get("/me", checkAuth(Role.PATIENT, Role.DOCTOR, Role.ADMIN, Role.SUPER_ADMIN), authController.getMe)
 router.post("/refresh-token", authController.getNewAccessToken)
 router.post("/verify-email-otp", authController.verifyEmailOtp)
-
+router.post("/forgot", authController.forgotPassword)
+router.post("/reset", authController.resetPassword)
 
 export const authRouter = router
