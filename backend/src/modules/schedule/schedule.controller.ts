@@ -52,9 +52,21 @@ const deleteSchedule = catchAsync( async (req : Request, res : Response) => {
         });
 });
 
+const getScheduleById = catchAsync( async (req : Request, res : Response) => {
+        const {id}= req.params 
+        const schedule = await scheduleService.getScheduleById(id as string);
+        sendResponse(res, {
+            success: true,
+            statusCode: status.OK,
+            message: 'Schedule retrieved successfully',
+            data: schedule
+        });
+});
+
 export const ScheduleController = {
     createSchedule,
     getAllSchedules,
     updateSchedule,
-    deleteSchedule
+    deleteSchedule,
+    getScheduleById
 }

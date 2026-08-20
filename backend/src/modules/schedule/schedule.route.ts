@@ -25,7 +25,9 @@ router.delete('/delete/:id',
     // checkAuth(Role.ADMIN, Role.SUPER_ADMIN), 
     ScheduleController.deleteSchedule)
 
-
+router.get('/single/:id',
+    // checkAuth(Role.ADMIN, Role.SUPER_ADMIN), 
+    ScheduleController.getScheduleById)
 
 
 
