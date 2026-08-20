@@ -21,6 +21,11 @@ router.put('/update/:id',
     // checkAuth(Role.ADMIN, Role.SUPER_ADMIN), 
     ScheduleController.updateSchedule)
 
+router.delete('/delete/:id',
+    // checkAuth(Role.ADMIN, Role.SUPER_ADMIN), 
+    ScheduleController.deleteSchedule)
+
+
 
 
 
