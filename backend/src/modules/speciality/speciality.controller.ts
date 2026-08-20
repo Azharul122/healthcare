@@ -3,14 +3,11 @@ import { NextFunction, Request, Response } from "express"
 import { specialityService } from "./speciality.service"
 import catchAsync from "../../utils/catchAsync"
 import sendResponse from "../../utils/sendResponse"
-import { send } from "node:process"
+
 
 
 const createSpecialities = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { title, description } = req.body
-
-
-
     const icon = req?.file?.path
 
     const data = {

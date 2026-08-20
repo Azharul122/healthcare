@@ -12,6 +12,7 @@ import { SpecialtyValidation } from './speciality.validation';
 const router = express.Router();
 
 router.post("/create",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     multerUpload.single("file"),
     validateRequest(SpecialtyValidation.createSpecialtyZodSchema),
     specialityController.createSpecialities)
