@@ -13,5 +13,8 @@ router.delete("/delete/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorCont
 
 // router.post("/create", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorController.createDoctor)
 router.post("/create-schedule",  doctorController.createDoctorShedules)
+router.get("/my-schedule", doctorController.getMeSchedules)
+router.get("/all-schedule", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorController.getAllDoctorSchedules)
+
 
 export const doctorRouter = router

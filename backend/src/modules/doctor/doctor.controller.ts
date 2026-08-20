@@ -75,6 +75,17 @@ const getMeSchedules = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+const getAllDoctorSchedules = catchAsync(async (req: Request, res: Response) => {
+    const query = req.query
+    const result = await doctorService.getAllDoctorSchedules(query as IQueryParams)
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 
 export const doctorController = {
     getAllDoctors
@@ -83,5 +94,5 @@ export const doctorController = {
     , deleteDoctor,
     createDoctorShedules,
     getMeSchedules
-
+    , getAllDoctorSchedules
 }
