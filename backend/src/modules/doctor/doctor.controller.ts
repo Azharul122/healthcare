@@ -3,6 +3,7 @@ import { Request, Response } from "express"
 import catchAsync from "../../utils/catchAsync"
 import { doctorService } from "./doctor.service"
 import sendResponse from "../../utils/sendResponse"
+import { IQueryParams } from '../../types/query';
 
 
 const getAllDoctors = catchAsync(async (req: Request, res: Response) => {
@@ -50,10 +51,22 @@ const deleteDoctor = catchAsync(async (req: Request, res: Response) => {
 })
 
 
-const createDoctorShedules= catchAsync(async (req: Request, res: Response) => {
+const createDoctorShedules = catchAsync(async (req: Request, res: Response) => {
     const payload = req.body
-    const user= req.user
-    const result = await doctorService.createSchedule(user as IRequestUser,payload)
+    const user = req.user
+    const result = await doctorService.createSchedule(user as IRequestUser, payload)
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
+const getMeSchedules = catchAsync(async (req: Request, res: Response) => {
+    const user = req.user
+    const query = req.query
+    const result = await doctorService.getMyDoctorSchedules(user as IRequestUser, query as IQueryParams)
     sendResponse(res, {
         message: "Schedule created successfully",
         success: true,
@@ -69,5 +82,6 @@ export const doctorController = {
     , updateDoctor
     , deleteDoctor,
     createDoctorShedules,
-    
+    getMeSchedules
+
 }
