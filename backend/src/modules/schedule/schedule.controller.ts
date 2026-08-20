@@ -29,7 +29,20 @@ const getAllSchedules = catchAsync( async (req : Request, res : Response) => {
     });
 });
 
+const updateSchedule = catchAsync( async (req : Request, res : Response) => {
+        const payload = req.body;
+        const {id}= req.params 
+        const schedule = await scheduleService.updateSchedule(id as string,payload);
+        sendResponse(res, {
+            success: true,
+            statusCode: status.OK,
+            message: 'Schedule updated successfully',
+            data: schedule
+        });
+});
+
 export const ScheduleController = {
     createSchedule,
-    getAllSchedules
+    getAllSchedules,
+    updateSchedule
 }

@@ -106,8 +106,45 @@ const getAllSchedules = async (query: IQueryParams) => {
     return result;
 }
 
+const updateSchedule = async (id: string, payload: ICreateSchedulePayload) => {
+    const { startDate, endDate, startTime, endTime } = payload;
+    const startDateTime = new Date(
+        addMinutes(
+            addHours(
+                `${format(new Date(startDate), 'yyyy-MM-dd')}`,
+                Number(startTime.split(':')[0])
+            ),
+            Number(startTime.split(':')[1])
+        )
+    );
+
+    const endDateTime = new Date(
+        addMinutes(
+            addHours(
+                `${format(new Date(endDate), 'yyyy-MM-dd')}`,
+                Number(endTime.split(':')[0])
+            ),
+            Number(endTime.split(':')[1])
+        )
+    );
+
+    const updatedSchedule = await prisma.schedule.update({
+        where: {
+            id: id
+        },
+        data: {
+            startDateTime: startDateTime,
+            endDateTime: endDateTime
+        }
+    });
+
+    return updatedSchedule;
+}
+
+
 
 export const scheduleService = {
     createSchedule,
-    getAllSchedules
+    getAllSchedules,
+    updateSchedule
 }
