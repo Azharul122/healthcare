@@ -1,10 +1,11 @@
-import { NextFunction, Request, Response } from "express"
+import { IRequestUser } from './../../types/user';
+import { Request, Response } from "express"
 import catchAsync from "../../utils/catchAsync"
 import { doctorService } from "./doctor.service"
 import sendResponse from "../../utils/sendResponse"
 
 
-const getAllDoctors = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getAllDoctors = catchAsync(async (req: Request, res: Response) => {
     const result = await doctorService.getAllDoctors()
     sendResponse(res, {
         message: "Doctors fetched successfully",
@@ -14,7 +15,7 @@ const getAllDoctors = catchAsync(async (req: Request, res: Response, next: NextF
     })
 })
 
-const getSingleDoctor = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getSingleDoctor = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params
     const result = await doctorService.getSingleDoctor(id as string)
     sendResponse(res, {
@@ -25,7 +26,7 @@ const getSingleDoctor = catchAsync(async (req: Request, res: Response, next: Nex
     })
 })
 
-const updateDoctor = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const updateDoctor = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params
     const payload = req.body
     const result = await doctorService.updateDoctor(id as string, payload)
@@ -37,7 +38,7 @@ const updateDoctor = catchAsync(async (req: Request, res: Response, next: NextFu
     })
 })
 
-const deleteDoctor = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const deleteDoctor = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params
     const result = await doctorService.deleteDoctor(id as string)
     sendResponse(res, {
@@ -49,9 +50,24 @@ const deleteDoctor = catchAsync(async (req: Request, res: Response, next: NextFu
 })
 
 
+const createDoctorShedules= catchAsync(async (req: Request, res: Response) => {
+    const payload = req.body
+    const user= req.user
+    const result = await doctorService.createSchedule(user as IRequestUser,payload)
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
+
 export const doctorController = {
     getAllDoctors
     , getSingleDoctor
     , updateDoctor
-    , deleteDoctor
+    , deleteDoctor,
+    createDoctorShedules,
+    
 }

@@ -1,6 +1,6 @@
 import { UserStatus } from "../../genereted/prisma/enums"
 import { prisma } from "../../lib/prisma"
-import { updateDoctorPayload } from "../../types/user"
+import { IRequestUser, updateDoctorPayload } from "../../types/user"
 
 const getAllDoctors = async () => {
     const result = await prisma.doctor.findMany({
@@ -139,9 +139,65 @@ const deleteDoctor = async (id: string) => {
     return true
 }
 
+const createSchedule = async (user: IRequestUser, payload: any) => {
+    const doctor = await prisma.doctor.findUnique({
+        where: {
+            userId: user.userId
+        }
+    })
+
+    if (!doctor) {
+        throw new Error("Doctor not found")
+    }
+
+    const data = await payload.sheduleIds.map((sheduleId: string) => {
+        return {
+            doctorId: doctor.id,
+            sheduleId
+        }
+    })
+
+    const result = await prisma.doctorSchedules.createMany({
+        data
+    })
+    return result
+
+
+}
+
+const deleteSchedule = async (id: string) => {
+    const result = await prisma.doctorSchedules.deleteMany({
+        where: {
+            doctorId: id
+        }
+    })
+    return result
+}
+
+const getSchedule = async (id: string) => {
+    const result = await prisma.doctorSchedules.findMany({
+        where: {
+            doctorId: id
+        }
+    })
+    return result
+}
+
+const updateSchedule= async (id: string, payload: any) => {
+    const result = await prisma.doctorSchedules.updateMany({
+        where: {
+            doctorId: id
+        },
+        data: payload
+    })
+    return result
+}
+
 export const doctorService = {
     getAllDoctors,
     getSingleDoctor,
     updateDoctor,
-    deleteDoctor
+    deleteDoctor,
+    createSchedule,
+    deleteSchedule
 }
