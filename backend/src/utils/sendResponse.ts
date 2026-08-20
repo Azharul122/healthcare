@@ -5,14 +5,21 @@ interface SendResponse<T> {
     message: string,
     statusCode: number,
     data?: T
+    meta?: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    }
 }
 
-const sendResponse = <T>(res: Response, { message, success, statusCode, data }: SendResponse<T>) => {
+const sendResponse = <T>(res: Response, { message, success, statusCode, data, meta }: SendResponse<T>) => {
     return res.status(statusCode).json({
         success,
         message,
         statusCode,
-        data
+        data,
+        meta
     })
 }
 

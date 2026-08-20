@@ -4,4 +4,5 @@ export interface ICreateSchedulePayload {
     endDate : string;
     startTime : string;
     endTime : string;
+    timezone ?: string
 }

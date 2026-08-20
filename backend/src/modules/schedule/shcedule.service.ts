@@ -2,11 +2,18 @@ import { addHours, addMinutes, format } from "date-fns";
 import { prisma } from "../../lib/prisma";
 import { ICreateSchedulePayload } from "./shedule.interface";
 import { convertDateTime } from "./shedule.utils";
+import { QueryBuilder } from "../../utils/QyuryBuilder";
+import { IQueryParams } from "../../types/query";
+import { Prisma, Schedule } from "../../genereted/prisma/client";
+import { scheduleFilterableFields, scheduleIncludeConfig, scheduleSearchableFields } from "./schedule.constand";
+
+// import { fromZonedTime } from 'date-fns-tz';
 
 const createSchedule = async (payload: ICreateSchedulePayload) => {
     const { startDate, endDate, startTime, endTime } = payload;
 
     const interval = 30;
+    const now = new Date();
 
     const currentDate = new Date(startDate);
     const lastDate = new Date(endDate);
@@ -40,8 +47,16 @@ const createSchedule = async (payload: ICreateSchedulePayload) => {
 
             const scheduleData = {
                 startDateTime: s,
-                endDateTime: e
+                endDateTime: e,
             }
+
+            if (startDateTime < now) {
+                startDateTime.setMinutes(startDateTime.getMinutes() + interval);
+                continue;
+            }
+
+
+
 
             const existingSchedule = await prisma.schedule.findFirst({
                 where: {
@@ -67,7 +82,32 @@ const createSchedule = async (payload: ICreateSchedulePayload) => {
     return schedules;
 }
 
+// ..................... All Schedules .........................
+
+const getAllSchedules = async (query: IQueryParams) => {
+    const queryBuilder = new QueryBuilder<Schedule, Prisma.ScheduleWhereInput, Prisma.ScheduleInclude>(
+        prisma.schedule,
+        query,
+        {
+            searchableFields: scheduleSearchableFields,
+            filterableFields: scheduleFilterableFields
+        }
+    )
+
+    const result = await queryBuilder
+        .search()
+        .filter()
+        .paginate()
+        .dynamicInclude(scheduleIncludeConfig)
+        .sort()
+        .fields()
+        .execute();
+
+    return result;
+}
+
 
 export const scheduleService = {
-    createSchedule
+    createSchedule,
+    getAllSchedules
 }

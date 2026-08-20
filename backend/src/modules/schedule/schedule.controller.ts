@@ -3,9 +3,11 @@ import sendResponse from "../../utils/sendResponse";
 import catchAsync from "../../utils/catchAsync";
 import { Request, Response } from "express";
 import { scheduleService } from "./shcedule.service";
+import { IQueryParams } from "../../types/query";
 
 const createSchedule = catchAsync( async (req : Request, res : Response) => {
     const payload = req.body;
+    console.log(payload)
     const schedule = await scheduleService.createSchedule(payload);
     sendResponse(res, {
         success: true,
@@ -15,6 +17,19 @@ const createSchedule = catchAsync( async (req : Request, res : Response) => {
     });
 });
 
+const getAllSchedules = catchAsync( async (req : Request, res : Response) => {
+    const query = req.query;
+    const result = await scheduleService.getAllSchedules(query as IQueryParams);
+    sendResponse(res, {
+        success: true,
+        statusCode: status.OK,
+        message: 'Schedules retrieved successfully',
+        data: result.data,
+        meta: result.meta
+    });
+});
+
 export const ScheduleController = {
-    createSchedule
+    createSchedule,
+    getAllSchedules
 }
