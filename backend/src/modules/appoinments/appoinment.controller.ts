@@ -42,9 +42,22 @@ const getMyAppointments = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+const getMySingleApointments = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params
+    const user = req.user
+    const result = await appointmentService.getMySingleAppointment(id as string, user as IRequestUser)
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 
 export const appoinmentController = {
     bookAppoinment,
     changeAppointmentStatus,
-    getMyAppointments
+    getMyAppointments,
+    getMySingleApointments
 }

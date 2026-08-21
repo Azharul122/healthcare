@@ -13,6 +13,7 @@ router.post("/create", appoinmentController.bookAppoinment)
 router.patch("/change-status/:id", appoinmentController.changeAppointmentStatus)
 
 router.get("/my-appointments", appoinmentController.getMyAppointments)
+router.get("/single/:id", appoinmentController.getMySingleApointments)
 // router.get("/all-appointments", appoinmentController.getAllAppoinments)
 // router.get("/single/:id", appoinmentController.getSingleAppoinment)
 // router.put("/update/:id", appoinmentController.updateAppoinment)
