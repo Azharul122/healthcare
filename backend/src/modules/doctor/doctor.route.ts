@@ -12,9 +12,13 @@ router.put("/update/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorControl
 router.delete("/delete/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorController.deleteDoctor)
 
 // router.post("/create", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorController.createDoctor)
-router.post("/create-schedule",  doctorController.createDoctorShedules)
+router.post("/create-schedule", doctorController.createDoctorShedules)
 router.get("/my-schedule", doctorController.getMeSchedules)
 router.get("/all-schedule", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorController.getAllDoctorSchedules)
+
+router.get("/single-schedule/:doctorId/:scheduleId", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorController.getDoctorScheduleById)
+
+router.delete("/delete-schedule/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), doctorController.deleteDoctorSchedule)
 
 
 export const doctorRouter = router

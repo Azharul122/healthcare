@@ -4,6 +4,7 @@ import catchAsync from "../../utils/catchAsync"
 import { doctorService } from "./doctor.service"
 import sendResponse from "../../utils/sendResponse"
 import { IQueryParams } from '../../types/query';
+import status from 'http-status';
 
 
 const getAllDoctors = catchAsync(async (req: Request, res: Response) => {
@@ -86,6 +87,31 @@ const getAllDoctorSchedules = catchAsync(async (req: Request, res: Response) => 
     })
 })
 
+const getDoctorScheduleById = catchAsync(async (req: Request, res: Response) => {
+    const doctorId = req.params.doctorId;
+    const scheduleId = req.params.scheduleId;
+    const doctorSchedule = await doctorService.getDoctorScheduleById(doctorId as string, scheduleId as string);
+    sendResponse(res, {
+        success: true,
+        statusCode: status.OK,
+        message: 'Doctor schedule retrieved successfully',
+        data: doctorSchedule
+    });
+});
+
+
+const deleteDoctorSchedule = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params
+    const user = req.user
+    const result = await doctorService.deleteMyDoctorSchedule(id as string, user as IRequestUser)
+    sendResponse(res, {
+        message: "Schedule deleted successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 
 export const doctorController = {
     getAllDoctors
@@ -94,5 +120,7 @@ export const doctorController = {
     , deleteDoctor,
     createDoctorShedules,
     getMeSchedules
-    , getAllDoctorSchedules
+    , getAllDoctorSchedules,
+    getDoctorScheduleById,
+    deleteDoctorSchedule
 }

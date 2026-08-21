@@ -1,5 +1,5 @@
 model Schedule {
-  id            String   @id @default(uuid(7))
+  id            String   @id @default(uuid())
   startDateTime DateTime
   endDateTime   DateTime
 
@@ -12,6 +12,7 @@ model Schedule {
 }
 
 model DoctorSchedules {
+ 
   doctorId String
   doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -21,6 +22,7 @@ model DoctorSchedules {
   isBooked  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  isDeleted Boolean @default(false)
 
   @@id([doctorId, scheduleId])
   @@index([doctorId])

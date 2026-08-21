@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DoctorSchedules, Prisma } from "../../genereted/prisma/client"
 import { UserStatus } from "../../genereted/prisma/enums"
 import { prisma } from "../../lib/prisma"
@@ -265,6 +266,22 @@ const getDoctorScheduleById = async (doctorId: string, scheduleId: string) => {
 }
 
 
+const deleteMyDoctorSchedule = async (id: string, user: IRequestUser) => {
+    const doctorData = await prisma.doctor.findUniqueOrThrow({
+        where: {
+            email: user.email
+        }
+    });
+
+    await prisma.doctorSchedules.deleteMany({
+        where: {
+            isBooked: false,
+            doctorId: doctorData.id,
+            scheduleId: id
+        }
+    });
+}
+
 
 
 export const doctorService = {
@@ -277,5 +294,7 @@ export const doctorService = {
     getSchedule,
     updateSchedule,
     getMyDoctorSchedules,
-    getAllDoctorSchedules
+    getAllDoctorSchedules,
+    getDoctorScheduleById,
+    deleteMyDoctorSchedule
 }

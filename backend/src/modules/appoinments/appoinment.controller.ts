@@ -1,0 +1,38 @@
+import { Request, Response } from "express";
+import catchAsync from "../../utils/catchAsync";
+import { appointmentService } from "./appoinments.service";
+import { IRequestUser } from "../../types/user";
+import sendResponse from "../../utils/sendResponse";
+import { AppointmentStatus } from "../../genereted/prisma/enums";
+
+const bookAppoinment = catchAsync(async (req: Request, res: Response) => {
+    const payload = req.body
+    const user = req.user
+
+    const result = await appointmentService.createAppoinment(payload, user as IRequestUser)
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+});
+
+const changeAppointmentStatus = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params
+    const { status } = req.body
+    const user = req.user
+    const result = await appointmentService.changeAppointmentStatus(id as string, status as AppointmentStatus, user as IRequestUser)
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
+
+export const appoinmentController = {
+    bookAppoinment,
+    changeAppointmentStatus
+}
