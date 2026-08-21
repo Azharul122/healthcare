@@ -43,7 +43,7 @@ interface EnvConfig {
     CLOUDINARY_API_SECRET: string
 
     STRIPE_PUBLICABLE_KEY: string
-    SRIPE_SECERET_KEY: string
+    SRIPE_SECRET_KEY: string
     STRIPE_WEBHOOK: string
 }
 
