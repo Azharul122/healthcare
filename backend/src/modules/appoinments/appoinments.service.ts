@@ -251,10 +251,15 @@ const getAppoinment = async (id: string) => {
     return result
 }
 
-const getAllAppoinment = async () => {
-    const result = await prisma.appointment.findMany({})
+const getAllAppointment = async () => {
+    const result = await prisma.appointment.findMany({
+        include: {
+            doctor: true,
+            patient: true
+        }
+    })
     return result
 }
 
 
-export const appointmentService = { createAppoinment, changeAppointmentStatus, getAppoinment, getAllAppoinment, getMyAppointments, getMySingleAppointment } 
+export const appointmentService = { createAppoinment, changeAppointmentStatus, getAppoinment, getAllAppointment, getMyAppointments, getMySingleAppointment } 

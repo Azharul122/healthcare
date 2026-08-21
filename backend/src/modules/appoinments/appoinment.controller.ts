@@ -54,10 +54,21 @@ const getMySingleApointments = catchAsync(async (req: Request, res: Response) =>
     })
 })
 
+const getAllAppointment = catchAsync(async (req: Request, res: Response) => {
+    const result = await appointmentService.getAllAppointment()
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 
 export const appoinmentController = {
     bookAppoinment,
     changeAppointmentStatus,
     getMyAppointments,
-    getMySingleApointments
+    getMySingleApointments,
+    getAllAppointment
 }

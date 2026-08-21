@@ -41,6 +41,10 @@ interface EnvConfig {
     CLOUDINARY_CLOUD_NAME: string
     CLOUDINARY_API_KEY: string
     CLOUDINARY_API_SECRET: string
+
+    STRIPE_PUBLICABLE_KEY: string
+    SRIPE_SECERET_KEY: string
+    STRIPE_WEBHOOK: string
 }
 
 const envConfig = process.env as unknown as EnvConfig

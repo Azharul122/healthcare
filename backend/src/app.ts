@@ -17,6 +17,10 @@ app.use(express.json());
 
 app.use(corsOptions);
 app.use(express.urlencoded({ extended: true }))
+app.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+  console.log("webhook", req.body);
+  res.status(200).send("ok");
+})
 app.set("view engine", "ejs");
 app.set("views", path.resolve(process.cwd(), `src/templetes`))
 
