@@ -74,9 +74,7 @@ const createAppoinment = async (payload: ICreateAppoinmentPayload, user: IReques
 }
 
 // 1. Completed Or Cancelled Appointments should not be allowed to update status
-// 2. Doctors can only update Appoinment status from schedule to inprogress or inprogress to complted or schedule to cancelled.
-// 3. Patients can only cancel the scheduled appointment if it scheduled not completed or cancelled or inprogress. 
-// 4. Admin and Super admin can update to any status.
+
 const changeAppointmentStatus = async (appointmentId: string, appointmentStatus: AppointmentStatus, user: IRequestUser) => {
     const appointmentData = await prisma.appointment.findUniqueOrThrow({
         where: {
@@ -151,6 +149,51 @@ const changeAppointmentStatus = async (appointmentId: string, appointmentStatus:
 
 }
 
+const getMyAppointments = async (user: IRequestUser) => {
+    //user can be patient or doctor, so we need to check both
+    const patientData = await prisma.patient.findUnique({
+        where: {
+            email: user?.email
+        }
+    });
+
+    const doctorData = await prisma.doctor.findUnique({
+        where: {
+            email: user?.email
+        }
+    });
+
+    let appointments = [];
+
+    if (patientData) {
+        appointments = await prisma.appointment.findMany({
+            where: {
+                patientId: patientData.id
+            },
+            include: {
+                doctor: true,
+                schedule: true
+            }
+        });
+    } else if (doctorData) {
+        appointments = await prisma.appointment.findMany({
+            where: {
+                doctorId: doctorData.id
+            },
+            include: {
+                patient: true,
+                schedule: true
+            }
+        });
+    } else {
+        throw new Error("User not found");
+    }
+
+    return appointments;
+
+}
+
+
 const getAppoinment = async (id: string) => {
     const result = await prisma.appointment.findUniqueOrThrow({
         where: {
@@ -166,4 +209,4 @@ const getAllAppoinment = async () => {
 }
 
 
-export const appointmentService = { createAppoinment, changeAppointmentStatus, getAppoinment, getAllAppoinment } 
+export const appointmentService = { createAppoinment, changeAppointmentStatus, getAppoinment, getAllAppoinment, getMyAppointments } 
