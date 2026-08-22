@@ -435,5 +435,59 @@ const bookAppointmentWithPayLater = async (payload: IBookAppointmentPayload, use
     return result;
 }
 
+const cancelUnpaidAppointments = async () => {
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
-export const appointmentService = { createAppoinment, changeAppointmentStatus, getAppoinment, getAllAppointment, getMyAppointments, getMySingleAppointment, initiatePayment, bookAppointmentWithPayLater } 
+    const unpaidAppointments = await prisma.appointment.findMany({
+        where: {
+            // status: AppointmentStatus.SCHEDULED,
+            createdAt: {
+                lte: thirtyMinutesAgo,
+            },
+            paymentStatus: PaymentStatus.UNPAID,
+        },
+    });
+
+    const appointmentToCancel = unpaidAppointments.map(appointment => appointment.id);
+
+    await prisma.$transaction(async (tx) => {
+
+        await tx.appointment.updateMany({
+            where: {
+                id: {
+                    in: appointmentToCancel,
+                },
+            },
+            data: {
+                status: AppointmentStatus.CANCELED,
+            },
+        });
+
+        await tx.payment.deleteMany({
+            where: {
+                appointmentId: {
+                    in: appointmentToCancel,
+                },
+            },
+        });
+
+        for (const unpaidAppointment of unpaidAppointments) {
+            await tx.doctorSchedules.update({
+                where: {
+                    doctorId_scheduleId: {
+                        doctorId: unpaidAppointment.doctorId,
+                        scheduleId: unpaidAppointment.scheduleId,
+                    },
+                },
+                data: {
+                    isBooked: false,
+                },
+            });
+        }
+    });
+}
+
+
+
+
+export const appointmentService = { createAppoinment, changeAppointmentStatus, getAppoinment, getAllAppointment, getMyAppointments, getMySingleAppointment, initiatePayment, bookAppointmentWithPayLater, cancelUnpaidAppointments } 
