@@ -15,4 +15,10 @@ interface IUpdateAppoinmentPayload {
     // notes: string;
 }
 
-export { ICreateAppoinmentPayload, IUpdateAppoinmentPayload };
+interface IBookAppointmentPayload {
+    doctorId: string;
+    scheduleId: string;
+}
+
+
+export { ICreateAppoinmentPayload, IUpdateAppoinmentPayload,IBookAppointmentPayload };

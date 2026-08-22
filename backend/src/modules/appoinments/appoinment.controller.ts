@@ -64,11 +64,25 @@ const getAllAppointment = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+const bookAppointmentWithPayLater = catchAsync(async (req: Request, res: Response) => {
+    const payload = req.body
+    const user = req.user
+
+    const result = await appointmentService.bookAppointmentWithPayLater(payload, user as IRequestUser)
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 
 export const appoinmentController = {
     bookAppoinment,
     changeAppointmentStatus,
     getMyAppointments,
     getMySingleApointments,
-    getAllAppointment
+    getAllAppointment,
+    bookAppointmentWithPayLater
 }

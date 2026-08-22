@@ -1,10 +1,13 @@
+/* eslint-disable no-useless-assignment */
 import { uuidv7 } from "zod";
 import { prisma } from "../../lib/prisma";
 import { IRequestUser } from "../../types/user";
-import { ICreateAppoinmentPayload } from "./appoinment.interface";
-import { AppointmentStatus, Role } from "../../genereted/prisma/enums";
+import { IBookAppointmentPayload, ICreateAppoinmentPayload } from "./appoinment.interface";
+import { AppointmentStatus, PaymentStatus, Role } from "../../genereted/prisma/enums";
 import { AppError } from "../../errors/AppError";
 import status from "http-status";
+import { stripe } from "../../configs/stripe.config";
+import envConfig from "../../configs/envConfig";
 
 
 const createAppoinment = async (payload: ICreateAppoinmentPayload, user: IRequestUser) => {
@@ -59,15 +62,48 @@ const createAppoinment = async (payload: ICreateAppoinmentPayload, user: IReques
         })
 
         // now payment
-        // await tx.payment.create({
-        //     data: {
-        //         patientId: patoentData.id,
-        //         doctorId: payload.doctorId,
-        //         videoCallingId,
-        //         scheduleId: doctorSchedules.scheduleId
-        //     }
-        // })
-        return appoinment
+
+
+        const transactionId = String(uuidv7());
+
+        const paymentData = await tx.payment.create({
+            data: {
+                appointmentId: appoinment.id,
+                amount: doctorData.appointFe as number,
+                transactionId
+            }
+        });
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            mode: 'payment',
+            line_items: [
+                {
+                    price_data: {
+                        currency: "bdt",
+                        product_data: {
+                            name: `Appointment with Dr. ${doctorData.name}`,
+                        },
+                        unit_amount: Number(doctorData.appointFe) * 100,
+                    },
+                    quantity: 1,
+                }
+            ],
+            metadata: {
+                appointmentId: appoinment.id,
+                paymentId: paymentData.id,
+            },
+
+            success_url: `${envConfig.FRONTEND_URL}/dashboard/payment/payment-success`,
+
+            // cancel_url: `${envVars.FRONTEND_URL}/dashboard/payment/payment-failed`,
+            cancel_url: `${envConfig.FRONTEND_URL}/dashboard/appointments`,
+        })
+        return {
+            appoinment,
+            paymentData,
+            paymentUrl: session.url
+        }
     })
 
     return result
@@ -261,5 +297,143 @@ const getAllAppointment = async () => {
     return result
 }
 
+const initiatePayment = async (appointmentId: string, user: IRequestUser) => {
+    const patientData = await prisma.patient.findUniqueOrThrow({
+        where: {
+            email: user.email,
+        }
+    });
 
-export const appointmentService = { createAppoinment, changeAppointmentStatus, getAppoinment, getAllAppointment, getMyAppointments, getMySingleAppointment } 
+    const appointmentData = await prisma.appointment.findUniqueOrThrow({
+        where: {
+            id: appointmentId,
+            patientId: patientData.id,
+        },
+        include: {
+            doctor: true,
+            payment: true,
+        }
+    });
+
+    if (!appointmentData) {
+        throw new AppError(status.NOT_FOUND, "Appointment not found");
+    }
+
+    if (!appointmentData.payment) {
+        throw new AppError(status.NOT_FOUND, "Payment data not found for this appointment");
+    }
+
+    if (appointmentData.payment?.status === PaymentStatus.PAID) {
+        throw new AppError(status.BAD_REQUEST, "Payment already completed for this appointment");
+    };
+
+    if (appointmentData.status === AppointmentStatus.CANCELED) {
+        throw new AppError(status.BAD_REQUEST, "Appointment is canceled");
+    }
+
+    const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: 'payment',
+        line_items: [
+            {
+                price_data: {
+                    currency: "bdt",
+                    product_data: {
+                        name: `Appointment with Dr. ${appointmentData.doctor.name}`,
+                    },
+                    unit_amount: Number(appointmentData.doctor.appointFe) * 100,
+                },
+                quantity: 1,
+            }
+        ],
+        metadata: {
+            appointmentId: appointmentData.id,
+            paymentId: appointmentData.payment.id,
+        },
+
+        success_url: `${envConfig.FRONTEND_URL}/dashboard/payment/payment-success?appointment_id=${appointmentData.id}&payment_id=${appointmentData.payment.id}`,
+
+        // cancel_url: `${envVars.FRONTEND_URL}/dashboard/payment/payment-failed`,
+        cancel_url: `${envConfig.FRONTEND_URL}/dashboard/appointments?error=payment_cancelled`,
+    })
+
+    return {
+        paymentUrl: session.url,
+    }
+}
+
+const bookAppointmentWithPayLater = async (payload: IBookAppointmentPayload, user: IRequestUser) => {
+    const patientData = await prisma.patient.findUniqueOrThrow({
+        where: {
+            email: user.email,
+        }
+    });
+
+    const doctorData = await prisma.doctor.findUniqueOrThrow({
+        where: {
+            id: payload.doctorId,
+            isDeleted: false,
+        }
+    });
+
+    const scheduleData = await prisma.schedule.findUniqueOrThrow({
+        where: {
+            id: payload.scheduleId,
+        }
+    });
+
+    const doctorSchedule = await prisma.doctorSchedules.findUniqueOrThrow({
+        where: {
+            doctorId_scheduleId: {
+                doctorId: doctorData.id,
+                scheduleId: scheduleData.id,
+            }
+        }
+    });
+
+    const videoCallingId = String(uuidv7());
+
+    const result = await prisma.$transaction(async (tx) => {
+        const appointmentData = await tx.appointment.create({
+            data: {
+                doctorId: payload.doctorId,
+                patientId: patientData.id,
+                scheduleId: doctorSchedule.scheduleId,
+                videoCallingId,
+            }
+        });
+
+        await tx.doctorSchedules.update({
+            where: {
+                doctorId_scheduleId: {
+                    doctorId: payload.doctorId,
+                    scheduleId: payload.scheduleId,
+                }
+            },
+            data: {
+                isBooked: true,
+            }
+        });
+
+        const transactionId = String(uuidv7());
+
+        const paymentData = await tx.payment.create({
+            data: {
+                appointmentId: appointmentData.id,
+                amount: Number(doctorData.appointFe),
+                transactionId,
+            }
+        });
+
+        return {
+            appointment: appointmentData,
+            payment: paymentData
+        };
+
+    });
+
+    return result;
+}
+
+
+export const appointmentService = { createAppoinment, changeAppointmentStatus, getAppoinment, getAllAppointment, getMyAppointments, getMySingleAppointment, initiatePayment, bookAppointmentWithPayLater } 
