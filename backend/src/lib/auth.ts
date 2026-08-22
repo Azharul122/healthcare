@@ -89,6 +89,7 @@ export const auth = betterAuth({
         emailOTP({
             overrideDefaultEmailVerification: true,
             async sendVerificationOTP({ email, otp, type }) {
+
                 if (type === "email-verification") {
                     const user = await prisma.user.findUnique({
                         where: {
@@ -96,7 +97,7 @@ export const auth = betterAuth({
                         }
                     })
 
-                    if (user && !user.emailVerified) {
+                    if (user && !user.emailVerified && user.role !== Role.SUPER_ADMIN) {
                         sendEmail({
                             to: email,
                             subject: "Verify your email",
@@ -131,8 +132,8 @@ export const auth = betterAuth({
             otpLength: 6,
         })
     ],
-        redirectURLs:{
-        signIn : `${envConfig.BETTER_AUTH_URL}/api/v1/auth/google/success`,
+    redirectURLs: {
+        signIn: `${envConfig.BETTER_AUTH_URL}/api/v1/auth/google/success`,
     },
 
     trustedOrigins: [process.env.NODE_ENV || "http://localhost:5000"],

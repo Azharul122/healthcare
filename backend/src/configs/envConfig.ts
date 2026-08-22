@@ -45,6 +45,9 @@ interface EnvConfig {
     STRIPE_PUBLICABLE_KEY: string
     SRIPE_SECRET_KEY: string
     STRIPE_WEBHOOK: string
+
+    SUPER_ADMIN_EMAIL: string
+    SUPER_ADMIN_PASSWORD: string
 }
 
 const envConfig = process.env as unknown as EnvConfig

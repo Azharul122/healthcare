@@ -29,7 +29,7 @@ app.use("/api/auth", toNodeHandler(auth))
 cron.schedule(" */25 * * * *", async () => {
   try {
     console.log("Running cron job to cancel unpaid appointments...");
-    // await appointmentService.cancelUnpaidAppointments();
+    await appointmentService.cancelUnpaidAppointments();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Error occurred while canceling unpaid appointments:", error.message);
