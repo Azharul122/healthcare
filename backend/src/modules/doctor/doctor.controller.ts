@@ -55,6 +55,7 @@ const deleteDoctor = catchAsync(async (req: Request, res: Response) => {
 const createDoctorShedules = catchAsync(async (req: Request, res: Response) => {
     const payload = req.body
     const user = req.user
+    console.log(user, "user")
     const result = await doctorService.createSchedule(user as IRequestUser, payload)
     sendResponse(res, {
         message: "Schedule created successfully",
