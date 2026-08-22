@@ -113,6 +113,18 @@ const deleteDoctorSchedule = catchAsync(async (req: Request, res: Response) => {
     })
 })
 
+const updateMyDoctorSchedule = catchAsync( async (req : Request, res : Response) => {
+    const payload = req.body;
+    const user = req.user;
+    const updatedDoctorSchedule = await doctorService.updateSchedule(user as IRequestUser, payload );
+    sendResponse(res, {
+        success: true,
+        statusCode: status.OK,  
+        message: 'Doctor schedule updated successfully',
+        data: updatedDoctorSchedule
+    });
+});
+
 
 export const doctorController = {
     getAllDoctors
@@ -123,5 +135,6 @@ export const doctorController = {
     getMeSchedules
     , getAllDoctorSchedules,
     getDoctorScheduleById,
-    deleteDoctorSchedule
+    deleteDoctorSchedule,
+    updateMyDoctorSchedule
 }
