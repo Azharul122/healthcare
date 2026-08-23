@@ -1,74 +1,78 @@
 /* eslint-disable no-useless-assignment */
-import { uuidv7 } from "zod";
+
 import { prisma } from "../../lib/prisma";
 import { IRequestUser } from "../../types/user";
-import { IBookAppointmentPayload, ICreateAppoinmentPayload } from "./appoinment.interface";
+import { IBookAppointmentPayload } from "./appoinment.interface";
 import { AppointmentStatus, PaymentStatus, Role } from "../../genereted/prisma/enums";
 import { AppError } from "../../errors/AppError";
 import status from "http-status";
 import { stripe } from "../../configs/stripe.config";
 import envConfig from "../../configs/envConfig";
+import { v7 as uuidv7 } from 'uuid';
 
 
-const createAppoinment = async (payload: ICreateAppoinmentPayload, user: IRequestUser) => {
-
-    const patoentData = await prisma.user.findUniqueOrThrow({
+const createAppoinment = async (payload: IBookAppointmentPayload, user: IRequestUser) => {
+    const patientData = await prisma.patient.findUniqueOrThrow({
         where: {
-            email: user.email
+            email: user.email,
         }
     });
 
     const doctorData = await prisma.doctor.findUniqueOrThrow({
         where: {
-            email: user.email
+            id: payload.doctorId,
+            isDeleted: false,
         }
     });
 
-    const doctorSchedules = await prisma.doctorSchedules.findUniqueOrThrow({
+    const scheduleData = await prisma.schedule.findUniqueOrThrow({
+        where: {
+            id: payload.scheduleId,
+        }
+    });
+
+    const doctorSchedule = await prisma.doctorSchedules.findUniqueOrThrow({
         where: {
             doctorId_scheduleId: {
                 doctorId: doctorData.id,
-                scheduleId: payload.scheduleId
+                scheduleId: scheduleData.id,
             }
         }
-    })
+    });
 
     const videoCallingId = String(uuidv7());
 
-
-
-
     const result = await prisma.$transaction(async (tx) => {
-        const appoinment = await tx.appointment.create({
+        const appointmentData = await tx.appointment.create({
             data: {
-                patientId: patoentData.id,
                 doctorId: payload.doctorId,
+                patientId: patientData.id,
+                scheduleId: doctorSchedule.scheduleId,
                 videoCallingId,
-                scheduleId: doctorSchedules.scheduleId
             }
-        })
+        });
 
-        // update true
         await tx.doctorSchedules.update({
             where: {
                 doctorId_scheduleId: {
                     doctorId: payload.doctorId,
-                    scheduleId: payload.scheduleId
+                    scheduleId: payload.scheduleId,
                 }
             },
             data: {
-                isBooked: true
+                isBooked: true,
             }
-        })
+        });
 
-        // now payment
+     
 
+        console.log(doctorData, "Doctor Data")
 
         const transactionId = String(uuidv7());
 
         const paymentData = await tx.payment.create({
             data: {
-                appointmentId: appoinment.id,
+                appointmentId: appointmentData.id,
                 amount: doctorData.appointFe as number,
                 transactionId
             }
@@ -84,13 +88,13 @@ const createAppoinment = async (payload: ICreateAppoinmentPayload, user: IReques
                         product_data: {
                             name: `Appointment with Dr. ${doctorData.name}`,
                         },
-                        unit_amount: Number(doctorData.appointFe) * 100,
+                        unit_amount: (doctorData.appointFe as number) * 100,
                     },
                     quantity: 1,
                 }
             ],
             metadata: {
-                appointmentId: appoinment.id,
+                appointmentId: appointmentData.id,
                 paymentId: paymentData.id,
             },
 
@@ -99,14 +103,19 @@ const createAppoinment = async (payload: ICreateAppoinmentPayload, user: IReques
             // cancel_url: `${envVars.FRONTEND_URL}/dashboard/payment/payment-failed`,
             cancel_url: `${envConfig.FRONTEND_URL}/dashboard/appointments`,
         })
-        return {
-            appoinment,
-            paymentData,
-            paymentUrl: session.url
-        }
-    })
 
-    return result
+        return {
+            appointmentData,
+            paymentData,
+            paymentUrl: session.url,
+        };
+    });
+
+    return {
+        appointment: result.appointmentData,
+        payment: result.paymentData,
+        paymentUrl: result.paymentUrl,
+    };
 }
 
 // 1. Completed Or Cancelled Appointments should not be allowed to update status

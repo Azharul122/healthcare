@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import status from "http-status"
+import { AppError } from "../../errors/AppError"
 import { DoctorSchedules, Prisma } from "../../genereted/prisma/client"
 import { UserStatus } from "../../genereted/prisma/enums"
 import { prisma } from "../../lib/prisma"
@@ -178,10 +180,19 @@ const createSchedule = async (user: IRequestUser, payload: ICreateDoctorSchedule
 }
 
 
-const deleteSchedule = async (id: string) => {
+const deleteSchedule = async (id: string, user: IRequestUser) => {
+
+    const doctorData = await prisma.doctor.findUniqueOrThrow({
+        where: {
+            email: user.email
+        }
+    });
+
     const result = await prisma.doctorSchedules.deleteMany({
         where: {
-            doctorId: id
+            doctorId: doctorData.id,
+            isBooked: false,
+            scheduleId: id
         }
     })
     return result
@@ -308,6 +319,18 @@ const deleteMyDoctorSchedule = async (id: string, user: IRequestUser) => {
             email: user.email
         }
     });
+
+    // check if the schedule belongs to the doctor or not
+    const isThisOwnSchedule = await prisma.doctorSchedules.findFirst({
+        where: {
+            doctorId: doctorData.id,
+            scheduleId: id
+        }
+    })
+
+    if (!isThisOwnSchedule) {
+        throw new AppError(status.BAD_REQUEST, "This schedule does not belong to you");
+    }
 
     await prisma.doctorSchedules.deleteMany({
         where: {

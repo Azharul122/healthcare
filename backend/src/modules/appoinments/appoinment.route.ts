@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { appoinmentController } from "./appoinment.controller";
+import { checkAuth } from "../../middlewares/checkAuth";
+import { Role } from "../../genereted/prisma/enums";
 
 
 const router = Router()
@@ -9,7 +11,7 @@ const router = Router()
 // router.put("/update/:id", appoinmentController.updateAppoinment)
 // router.delete("/delete/:id", appoinmentController.deleteAppoinment)
 
-router.post("/create", appoinmentController.bookAppoinment)
+router.post("/create", checkAuth(Role.PATIENT), appoinmentController.bookAppoinment)
 router.patch("/change-status/:id", appoinmentController.changeAppointmentStatus)
 router.get("/my-appointments", appoinmentController.getMyAppointments)
 router.get("/single/:id", appoinmentController.getMySingleApointments)
