@@ -78,6 +78,18 @@ const bookAppointmentWithPayLater = catchAsync(async (req: Request, res: Respons
     })
 })
 
+const initiatePayment = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params
+    const user = req.user
+    const result = await appointmentService.initiatePayment(id as string, user as IRequestUser)
+    sendResponse(res, {
+        message: "Schedule created successfully",
+        success: true,
+        statusCode: 200,
+        data: result
+    })
+})
+
 
 export const appoinmentController = {
     bookAppoinment,
@@ -85,5 +97,6 @@ export const appoinmentController = {
     getMyAppointments,
     getMySingleApointments,
     getAllAppointment,
-    bookAppointmentWithPayLater
+    bookAppointmentWithPayLater,
+    initiatePayment
 }

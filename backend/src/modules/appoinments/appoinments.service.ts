@@ -306,7 +306,7 @@ const getAllAppointment = async () => {
     return result
 }
 
-const initiatePayment = async (appointmentId: string, user: IRequestUser) => {
+const initiatePayment = async (appointmentId: string, user : IRequestUser) => {
     const patientData = await prisma.patient.findUniqueOrThrow({
         where: {
             email: user.email,
@@ -320,23 +320,23 @@ const initiatePayment = async (appointmentId: string, user: IRequestUser) => {
         },
         include: {
             doctor: true,
-            payment: true,
+            payment : true,
         }
     });
 
-    if (!appointmentData) {
+    if(!appointmentData){
         throw new AppError(status.NOT_FOUND, "Appointment not found");
     }
 
-    if (!appointmentData.payment) {
+    if(!appointmentData.payment){
         throw new AppError(status.NOT_FOUND, "Payment data not found for this appointment");
     }
 
-    if (appointmentData.payment?.status === PaymentStatus.PAID) {
+    if(appointmentData.payment?.status === PaymentStatus.PAID){
         throw new AppError(status.BAD_REQUEST, "Payment already completed for this appointment");
     };
 
-    if (appointmentData.status === AppointmentStatus.CANCELED) {
+    if(appointmentData.status === AppointmentStatus.CANCELED){
         throw new AppError(status.BAD_REQUEST, "Appointment is canceled");
     }
 
@@ -372,7 +372,7 @@ const initiatePayment = async (appointmentId: string, user: IRequestUser) => {
 }
 
 const bookAppointmentWithPayLater = async (payload : IBookAppointmentPayload, user : IRequestUser) => {
-    console.log(payload)
+    
     const patientData = await prisma.patient.findUniqueOrThrow({
         where: {
             email: user.email,
