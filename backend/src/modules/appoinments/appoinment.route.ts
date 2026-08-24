@@ -16,6 +16,7 @@ router.patch("/change-status/:id", appoinmentController.changeAppointmentStatus)
 router.get("/my-appointments", appoinmentController.getMyAppointments)
 router.get("/single/:id", appoinmentController.getMySingleApointments)
 router.get("/all-appointments", appoinmentController.getAllAppointment)
+router.post("/book-with-pay-later", checkAuth(Role.PATIENT), appoinmentController.bookAppointmentWithPayLater)
 
 
 

@@ -66,6 +66,7 @@ const getAllAppointment = catchAsync(async (req: Request, res: Response) => {
 
 const bookAppointmentWithPayLater = catchAsync(async (req: Request, res: Response) => {
     const payload = req.body
+    console.log(payload, "payload")
     const user = req.user
 
     const result = await appointmentService.bookAppointmentWithPayLater(payload, user as IRequestUser)

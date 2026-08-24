@@ -371,7 +371,8 @@ const initiatePayment = async (appointmentId: string, user: IRequestUser) => {
     }
 }
 
-const bookAppointmentWithPayLater = async (payload: IBookAppointmentPayload, user: IRequestUser) => {
+const bookAppointmentWithPayLater = async (payload : IBookAppointmentPayload, user : IRequestUser) => {
+    console.log(payload)
     const patientData = await prisma.patient.findUniqueOrThrow({
         where: {
             email: user.email,
@@ -431,7 +432,7 @@ const bookAppointmentWithPayLater = async (payload: IBookAppointmentPayload, use
                 appointmentId: appointmentData.id,
                 amount: Number(doctorData.appointFe),
                 transactionId,
-            }
+             }
         });
 
         return {
@@ -442,7 +443,7 @@ const bookAppointmentWithPayLater = async (payload: IBookAppointmentPayload, use
     });
 
     return result;
-}
+}  
 
 const cancelUnpaidAppointments = async () => {
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
