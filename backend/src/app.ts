@@ -16,11 +16,11 @@ import { PaymentController } from "./modules/payment/payment.controller";
 const app: Application = express();
 
 app.use(cookieParser());
+app.post("/webhook", express.raw({ type: "application/json" }), PaymentController.handleStripeWebhookEvent);
 app.use(express.json());
 
 app.use(corsOptions);
 app.use(express.urlencoded({ extended: true }))
-app.post("/webhook", express.raw({ type: "application/json" }), PaymentController.handleStripeWebhookEvent);
 app.set("view engine", "ejs");
 app.set("views", path.resolve(process.cwd(), `src/templetes`))
 
