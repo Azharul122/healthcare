@@ -17,7 +17,7 @@ router.get("/my-appointments", appoinmentController.getMyAppointments)
 router.get("/single/:id", appoinmentController.getMySingleApointments)
 router.get("/all-appointments", appoinmentController.getAllAppointment)
 router.post("/book-with-pay-later", checkAuth(Role.PATIENT), appoinmentController.bookAppointmentWithPayLater)
-router.post("/initiate-payment", checkAuth(Role.PATIENT) , appoinmentController.initiatePayment)
+router.post("/initiate-payment/:id", checkAuth(Role.PATIENT) , appoinmentController.initiatePayment)
 
 
 
