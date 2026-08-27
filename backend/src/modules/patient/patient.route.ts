@@ -5,6 +5,7 @@ import { Role } from "../../genereted/prisma/enums";
 import { validateRequest } from "../../middlewares/validatRequestWithZod";
 import { PatientValidation } from "./patient.validation";
 import { multerUpload } from "../../configs/multer";
+import { updateMyPatientProfileMiddleware } from "./patient.middleware";
 
 
 const router = Router()
@@ -19,6 +20,8 @@ router.patch("/update-profile", checkAuth(Role.PATIENT), multerUpload.fields([
         name: "medicalReports",
         maxCount: 6
     }
-]), validateRequest(PatientValidation.updatePatientProfileZodSchema), patientController.updatePatientProfile)
+]),
+    updateMyPatientProfileMiddleware,
+    validateRequest(PatientValidation.updatePatientProfileZodSchema), patientController.updatePatientProfile)
 
 export const patientRouter = router
