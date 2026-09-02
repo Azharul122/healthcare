@@ -3,7 +3,7 @@ import { AppError } from "../../errors/AppError";
 import { PaymentStatus } from "../../genereted/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { IRequestUser } from "../../types/user";
-import { ICreateReviewPayload } from "./review.interface";
+import { ICreateReviewPayload, IUpdateReviewPayload } from "./review.interface";
 
 const giveReview = async (user: IRequestUser, payload: ICreateReviewPayload) => {
     const patientData = await prisma.patient.findUniqueOrThrow({
@@ -113,8 +113,70 @@ const getmyReviews = async (user: IRequestUser) => {
     return reviews;
 };
 
+const updateReview = async (user: IRequestUser, reviewId: string, payload: IUpdateReviewPayload) => {
+    const patientData = await prisma.patient.findUniqueOrThrow({
+        where: {
+            email: user?.email
+        }
+    });
+    const reviewData = await prisma.review.findUniqueOrThrow({
+        where: {
+            id: reviewId
+        }
+    });
+    if (!(patientData.id === reviewData.patientId)) {
+        throw new AppError(status.BAD_REQUEST, "This is not your review!")
+    }
+    const result = await prisma.$transaction(async (tx) => {
+        const updatedReview = await tx.review.update({
+            where: {
+                id: reviewId
+            },
+            data: {
+                ...payload
+            }
+        });
+
+        const averageRating = await tx.review.aggregate({
+            where: {
+                doctorId: reviewData.doctorId
+            },
+            _avg: {
+                rating: true
+            }
+        });
+
+        await tx.doctor.update({
+            where: {
+                id: updatedReview.doctorId
+            },
+            data: {
+                averageRating: averageRating._avg.rating as number
+            }
+        })
+
+        return updatedReview;
+    });
+
+    return result;
+}
+
+const deleteReview = async (id: string) => {
+    const result = await prisma.review.update({
+        where: {
+            id
+        },
+        data: {
+            isDeleted: true
+        }
+    });
+    return result;
+};
+
 export const reviewService = {
     giveReview,
     getAllReviews,
-    getmyReviews
+    getmyReviews,
+    updateReview,
+    deleteReview
 };
