@@ -82,7 +82,39 @@ const getAllReviews = async () => {
     return reviews;
 };
 
+const getmyReviews = async (user: IRequestUser) => {
+
+    let data
+
+    if (user.role === "PATIENT") {
+        data = await prisma.patient.findUniqueOrThrow({
+            where: {
+                email: user.email
+            }
+        });
+    } else if (user.role === "DOCTOR") {
+        data = await prisma.doctor.findUniqueOrThrow({
+            where: {
+                email: user.email
+            }
+        });
+    }
+
+    const reviews = await prisma.review.findMany({
+        where: {
+            patientId: data?.id
+        },
+        include: {
+            patient: true,
+            doctor: true,
+            appointment: true
+        }
+    });
+    return reviews;
+};
+
 export const reviewService = {
     giveReview,
-    getAllReviews
+    getAllReviews,
+    getmyReviews
 };
