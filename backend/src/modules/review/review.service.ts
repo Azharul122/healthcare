@@ -161,17 +161,53 @@ const updateReview = async (user: IRequestUser, reviewId: string, payload: IUpda
     return result;
 }
 
-const deleteReview = async (id: string) => {
-    const result = await prisma.review.update({
+
+
+
+const deleteReview = async (user: IRequestUser, reviewId: string) => {
+    const patientData = await prisma.patient.findUniqueOrThrow({
         where: {
-            id
-        },
-        data: {
-            isDeleted: true
+            email: user?.email
         }
     });
+    const reviewData = await prisma.review.findUniqueOrThrow({
+        where: {
+            id: reviewId
+        }
+    });
+    if (!(patientData.id === reviewData.patientId)) {
+        throw new AppError(status.BAD_REQUEST, "This is not your review!")
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+        const deletedReview = await tx.review.delete({
+            where: {
+                id: reviewId
+            }
+        });
+
+        const averageRating = await tx.review.aggregate({
+            where: {
+                doctorId: deletedReview.doctorId
+            },
+            _avg: {
+                rating: true
+            }
+        });
+
+        await tx.doctor.update({
+            where: {
+                id: deletedReview.doctorId
+            },
+            data: {
+                averageRating: averageRating._avg.rating as number
+            }
+        })
+        return deletedReview;
+    });
+
     return result;
-};
+}
 
 export const reviewService = {
     giveReview,
