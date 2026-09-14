@@ -25,8 +25,18 @@ const myPrescriptions = catchAsync(async (req, res) => {
     });
 });
 
+const getAllPrescriptions = catchAsync(async (req, res) => {
+    const result = await prescriptionService.getAllPrescriptions();
+    res.status(200).json({
+        success: true,
+        message: "Prescriptions fetched successfully",
+        data: result
+    });
+});
+
 
 export const prescriptionController = {
     givePrescription,
-    myPrescriptions
+    myPrescriptions,
+    getAllPrescriptions
 }

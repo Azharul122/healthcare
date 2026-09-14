@@ -7,7 +7,7 @@ const router = Router();
 
 router.post('/give-prescription', prescriptionController.givePrescription)
 router.get('/my-prescriptions', prescriptionController.myPrescriptions)
-
+router.get('/all-prescriptions', prescriptionController.getAllPrescriptions)
 
 
 
