@@ -9,6 +9,7 @@ router.post('/give-prescription', prescriptionController.givePrescription)
 router.get('/my-prescriptions', prescriptionController.myPrescriptions)
 router.get('/all-prescriptions', prescriptionController.getAllPrescriptions)
 router.patch('/update-prescription/:id', prescriptionController.updatePrescription)
+router.delete('/delete-prescription/:id', prescriptionController.deletePrescription)
 
 
 
