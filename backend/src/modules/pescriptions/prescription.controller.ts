@@ -35,8 +35,21 @@ const getAllPrescriptions = catchAsync(async (req, res) => {
 });
 
 
+const updatePrescription = catchAsync(async (req, res) => {
+    const user = req.user;
+    const prescriptionId = req.params.id;
+    const payload = req.body;
+    const result = await prescriptionService.updatePrescription(user as IRequestUser, prescriptionId as string, payload);
+    res.status(200).json({
+        success: true,
+        message: "Prescription updated successfully",
+        data: result
+    });
+});
+
 export const prescriptionController = {
     givePrescription,
     myPrescriptions,
-    getAllPrescriptions
+    getAllPrescriptions,
+    updatePrescription
 }
