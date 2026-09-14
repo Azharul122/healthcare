@@ -1,12 +1,14 @@
 import { Router } from "express";
-import { pescriptionController } from "./prescription.controller";
+import { prescriptionController } from "./prescription.controller";
 
 
 const router = Router();
 
 
-router.post('/give-prescription', pescriptionController.givePrescription)
+router.post('/give-prescription', prescriptionController.givePrescription)
+router.get('/my-prescriptions', prescriptionController.myPrescriptions)
 
 
 
-export const pescriptionRouter = router
+
+export const prescriptionRouter = router

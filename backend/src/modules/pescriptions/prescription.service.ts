@@ -6,6 +6,7 @@ import { uploadFileToCloudinary } from "../../configs/cloudinary";
 import { sendEmail } from "../../utils/email";
 import { generatePrescriptionPDF } from "./prescription.utils";
 import { ICreatePrescriptionPayload } from "./prescription.interface";
+import { Role } from "../../genereted/prisma/enums";
 
 
 
@@ -130,4 +131,53 @@ const givePrescription = async (user : IRequestUser, payload : ICreatePrescripti
   
 };
 
-export const pescriptionService = { givePrescription };
+
+const myPrescriptions = async (user: IRequestUser) => {
+    const isUserExists = await prisma.user.findUnique({
+        where: {
+            email: user?.email
+        }
+    });
+
+    if (!isUserExists) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    if (isUserExists.role === Role.DOCTOR) {
+        const prescriptions = await prisma.prescription.findMany({
+            where: {
+                doctor: {
+                    email: user?.email
+                }
+            },
+            include: {
+                patient: true,
+                doctor: true,
+                appointment: true,
+            }
+        });
+        return prescriptions;
+    }
+
+    if (isUserExists.role === Role.PATIENT) {
+        const prescriptions = await prisma.prescription.findMany({
+            where: {
+                patient: {
+                    email: user?.email
+                }
+            },
+            include: {
+                patient: true,
+                doctor: true,
+                appointment: true,
+            }
+        });
+        return prescriptions;
+    }
+
+
+};
+
+export const prescriptionService = { givePrescription, myPrescriptions };
+
+    

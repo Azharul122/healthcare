@@ -1,20 +1,32 @@
 import { IRequestUser } from "../../types/user";
 import catchAsync from "../../utils/catchAsync";
-import { pescriptionService } from "./prescription.service";
+import { prescriptionService } from "./prescription.service";
 
 
 const givePrescription= catchAsync(async (req, res) => {
     const user = req.user;
     const payload = req.body;
-    const result = await pescriptionService.givePrescription(user as IRequestUser, payload);
+    const result = await prescriptionService.givePrescription(user as IRequestUser, payload);
     res.status(201).json({
         success: true,
-        message: "Pescription given successfully",
+        message: "Prescription given successfully",
         data: result
     });
 });
 
 
-export const pescriptionController = {
-    givePrescription
+const myPrescriptions = catchAsync(async (req, res) => {
+    const user = req.user;
+    const result = await prescriptionService.myPrescriptions(user as IRequestUser);
+    res.status(200).json({
+        success: true,
+        message: "Prescriptions fetched successfully",
+        data: result
+    });
+});
+
+
+export const prescriptionController = {
+    givePrescription,
+    myPrescriptions
 }
