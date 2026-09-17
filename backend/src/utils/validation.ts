@@ -1,4 +1,5 @@
-import { optional, z } from "zod";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { z } from "zod";
 
 // ---------- UUID ----------
 export const uuidSchema = z.uuid({ message: "Invalid ID format" });
