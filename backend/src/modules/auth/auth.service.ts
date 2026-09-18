@@ -201,7 +201,8 @@ const verifyEmailOtp = async (email: string, otp: string) => {
         }
     })
 
-    if (result.status && !result.user.emailVerified) await prisma.user.update({
+    if (result.status && !result.user.emailVerified) {
+        await prisma.user.update({
         where: {
             email
         },
@@ -209,6 +210,7 @@ const verifyEmailOtp = async (email: string, otp: string) => {
             emailVerified: true
         }
     })
+    }
     return result
 }
 
@@ -231,7 +233,7 @@ const forgotPassword = async (email: string) => {
     if (isUserExists.isDeleted || isUserExists.status === "BLOCKED") {
         throw new AppError(status.INTERNAL_SERVER_ERROR, "You can't chnage password please contact with admin")
     }
-    const result = await auth.api.requestPasswordResetEmailOTP({
+    const result = await auth.api.forgetPasswordEmailOTP({
         body: {
             email
         }
